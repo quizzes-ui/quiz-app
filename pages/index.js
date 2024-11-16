@@ -5,7 +5,7 @@ import TestDB from '../components/testDB';
 const Home = () => {
   return (
     <div>
-      <TestDB />
+     // <TestDB />
       <Quiz />
     </div>
   );
