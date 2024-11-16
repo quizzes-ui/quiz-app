@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { UploadIcon, Trash2Icon } from 'lucide-react'
+import React, { useState } from 'react'
+import { UploadIcon, TrashIcon } from './Icons'
 
 const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderModes, setOrderModes }) => {
   const [uploadError, setUploadError] = useState('')
@@ -68,9 +68,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
             ...quiz,
             isActive: false
           }))
-          const newQuizzes = [newQuiz, ...updatedQuizzes]
-          localStorage.setItem('quizData', JSON.stringify(newQuizzes))
-          return newQuizzes
+          return [newQuiz, ...updatedQuizzes]
         })
 
         setOrderModes(prev => ({
@@ -103,57 +101,120 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
         return newModes
       })
 
-      localStorage.setItem('quizData', JSON.stringify(updatedQuizzes))
       return updatedQuizzes
     })
   }
 
   const handleDeactivate = () => {
-    setQuizzes(prevQuizzes => {
-      const updatedQuizzes = prevQuizzes.map(quiz => ({
+    setQuizzes(prevQuizzes => 
+      prevQuizzes.map(quiz => ({
         ...quiz,
         isActive: false
       }))
-      localStorage.setItem('quizData', JSON.stringify(updatedQuizzes))
-      return updatedQuizzes
-    })
+    )
     onQuizActivated(null, 'random')
   }
 
-  const handleActivate = (quiz) => {
+  const toggleOrderMode = (quizId) => {
+    const newMode = orderModes[quizId] === 'random' ? 'sequential' : 'random'
+    setOrderModes(prev => ({
+      ...prev,
+      [quizId]: newMode
+    }))
+    
+    const activeQuiz = quizzes.find(quiz => quiz.id === quizId && quiz.isActive)
+    if (activeQuiz) {
+      const quizWithId = {
+        ...activeQuiz.data,
+        id: activeQuiz.id
+      }
+      onQuizActivated(quizWithId, newMode)
+    }
+  }
+  
+  const handleActivate = (quizId) => {
     setQuizzes(prevQuizzes => {
-      const updatedQuizzes = prevQuizzes.map(q => ({
-        ...q,
-        isActive: q.id === quiz.id
+      const updatedQuizzes = prevQuizzes.map(quiz => ({
+        ...quiz,
+        isActive: quiz.id === quizId
       }))
-      localStorage.setItem('quizData', JSON.stringify(updatedQuizzes))
+      const activeQuiz = updatedQuizzes.find(q => q.id === quizId)
+      if (activeQuiz) {
+        const quizWithId = {
+          ...activeQuiz.data,
+          id: activeQuiz.id
+        }
+        onQuizActivated(quizWithId, orderModes[quizId] || 'random')
+      }
       return updatedQuizzes
     })
-    onQuizActivated(quiz.data, orderModes[quiz.id] || 'random')
   }
 
   return (
     <div className="manage-quizzes-overlay">
-      <div className="manage-quizzes-modal">
-        <h2>Manage Quizzes</h2>
-        <div className="quiz-list">
-          {quizzes.map(quiz => (
-            <div key={quiz.id} className="quiz-item">
-              <span>{quiz.title}</span>
-              <div className="quiz-actions">
-                <button
-                  onClick={() => handleActivate(quiz)}
-                  className={`activate-button ${quiz.isActive ? 'active' : ''}`}
-                >
-                  {quiz.isActive ? 'Active' : 'Activate'}
-                </button>
-                <button onClick={() => handleDelete(quiz.id)} className="delete-button">
-                  <Trash2Icon size={16} />
-                </button>
-              </div>
-            </div>
-          ))}
+      <div className="manage-quizzes-container">
+        <div className="manage-quizzes-header">
+          <h2>Manage Quizzes</h2>
+          <button onClick={onClose} className="close-button">×</button>
         </div>
+
+        <div className="quizzes-list">
+          {quizzes.length === 0 ? (
+            <p className="no-quizzes-message">No question files are loaded yet.</p>
+          ) : (
+            <table>
+              <thead>
+                <tr>
+                  <th>Quiz Title</th>
+                  <th className="questions-count-header">Questions</th>
+                  <th className="order-header">Order</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {quizzes.map(quiz => (
+                  <tr key={quiz.id} className={quiz.isActive ? 'active-row' : ''}>
+                    <td className="quiz-title-cell">{quiz.title}</td>
+                    <td className="questions-count-cell">{quiz.data.questions.length}</td>
+                    <td className="order-cell">
+                      <button 
+                        onClick={() => toggleOrderMode(quiz.id)}
+                        className={`order-button ${orderModes[quiz.id]}`}
+                      >
+                        {orderModes[quiz.id] === 'random' ? 'Random' : 'Sequential'}
+                      </button>
+                    </td>
+                    <td className="quiz-actions-cell">
+                      {quiz.isActive ? (
+                        <button 
+                          onClick={handleDeactivate}
+                          className="activate-button active"
+                        >
+                          Active
+                        </button>
+                      ) : (
+                        <button 
+                          onClick={() => handleActivate(quiz.id)}
+                          className="activate-button inactive"
+                        >
+                          Inactive
+                        </button>
+                      )}
+                      <button 
+                        onClick={() => handleDelete(quiz.id)}
+                        className="delete-button-icon"
+                        title="Delete quiz"
+                      >
+                        <TrashIcon />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+
         <div className="upload-section">
           {uploadError && <p className="upload-error">{uploadError}</p>}
           <div className="upload-buttons-container">
@@ -173,6 +234,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
             </button>
           </div>
         </div>
+
       </div>
     </div>
   )
