@@ -1,9 +1,14 @@
-import Quiz from '../components/Quiz'
+import React from 'react';
+import Quiz from '../components/Quiz';
+import DatabaseDisplay from '../components/DatabaseDisplay';
 
-export default function Home() {
+const Home = () => {
   return (
     <div>
+      <DatabaseDisplay />
       <Quiz />
     </div>
-  )
-}
+  );
+};
+
+export default Home;
