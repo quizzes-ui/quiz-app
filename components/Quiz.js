@@ -1,8 +1,5 @@
-'use client'
-
-import { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { loadDefaultQuestions } from '../utils/loadDefaultQuestions'
-import Header from './Header'
 import Question from './Question'
 import QuizComplete from './QuizComplete'
 import ManageQuizzes from './ManageQuizzes'
@@ -138,13 +135,7 @@ export default function Quiz() {
 
   return (
     <div className="quiz-container">
-      <Header 
-        title={quizData?.title || "Quiz App"}
-        onRestartQuiz={handleRestart}
-        onManageQuizzes={() => setShowManageQuizzes(true)}
-        orderModes={orderModes}
-        setOrderModes={setOrderModes}
-      />
+      <h1 className="quiz-header">{quizData?.title || "Quiz App"}</h1>
       {showManageQuizzes && (
         <ManageQuizzes
           onClose={() => setShowManageQuizzes(false)}
@@ -192,7 +183,7 @@ export default function Quiz() {
           )}
         </>
       )}
-      <div className="version-tag">Version 2.4</div>
+      <div className="version-tag">Version 2.5</div>
     </div>
   )
 }
