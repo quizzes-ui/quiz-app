@@ -192,7 +192,7 @@ export default function Quiz() {
           )}
         </>
       )}
-      <div className="version-tag">Version 2.2</div>
+      <div className="version-tag">Version 2.3</div>
     </div>
   )
 }
