@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { UploadIcon, TrashIcon } from './Icons';
+import { useState } from 'react'
+import { UploadIcon, Trash2Icon } from 'lucide-react'
 
 const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderModes, setOrderModes }) => {
-  const [uploadError, setUploadError] = useState('');
+  const [uploadError, setUploadError] = useState('')
 
   const validateQuestionsFormat = (data) => {
     try {
       if (!data.title || !Array.isArray(data.questions)) {
-        throw new Error('File must contain a title and questions array');
+        throw new Error('File must contain a title and questions array')
       }
 
       data.questions.forEach((question, index) => {
@@ -18,42 +18,42 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
             !question.answerC ||
             !question.correctAnswer ||
             !question.justification) {
-          throw new Error(`Question ${index + 1} is missing required fields`);
+          throw new Error(`Question ${index + 1} is missing required fields`)
         }
 
         if (!['A', 'B', 'C'].includes(question.correctAnswer)) {
-          throw new Error(`Question ${index + 1} has invalid correct answer`);
+          throw new Error(`Question ${index + 1} has invalid correct answer`)
         }
-      });
+      })
 
-      return true;
+      return true
     } catch (error) {
-      setUploadError(error.message);
-      return false;
+      setUploadError(error.message)
+      return false
     }
-  };
+  }
 
   const handleFileUpload = async (event) => {
-    const file = event.target.files[0];
-    setUploadError('');
+    const file = event.target.files[0]
+    setUploadError('')
 
-    if (!file) return;
+    if (!file) return
 
     if (file.type !== 'application/json') {
-      setUploadError('Please upload a JSON file');
-      return;
+      setUploadError('Please upload a JSON file')
+      return
     }
 
     try {
-      const fileContent = await file.text();
-      const parsedData = JSON.parse(fileContent);
+      const fileContent = await file.text()
+      const parsedData = JSON.parse(fileContent)
 
       if (validateQuestionsFormat(parsedData)) {
-        const existingQuiz = quizzes.find(quiz => quiz.title === parsedData.title);
+        const existingQuiz = quizzes.find(quiz => quiz.title === parsedData.title)
         
         if (existingQuiz) {
-          setUploadError('A quiz with this title already exists');
-          return;
+          setUploadError('A quiz with this title already exists')
+          return
         }
 
         const newQuiz = {
@@ -61,162 +61,99 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
           title: parsedData.title,
           data: parsedData,
           isActive: true
-        };
+        }
         
         setQuizzes(prevQuizzes => {
           const updatedQuizzes = prevQuizzes.map(quiz => ({
             ...quiz,
             isActive: false
-          }));
-          return [newQuiz, ...updatedQuizzes];
-        });
+          }))
+          const newQuizzes = [newQuiz, ...updatedQuizzes]
+          localStorage.setItem('quizData', JSON.stringify(newQuizzes))
+          return newQuizzes
+        })
 
-        // Initialize order mode for new quiz
         setOrderModes(prev => ({
           ...prev,
           [newQuiz.id]: 'random'
-        }));
+        }))
         
-        onQuizActivated(parsedData);
+        onQuizActivated(parsedData)
       }
     } catch (error) {
-      setUploadError('Invalid JSON file format');
+      setUploadError('Invalid JSON file format')
     }
 
-    event.target.value = '';
-  };
+    event.target.value = ''
+  }
 
   const handleDelete = (quizId) => {
     setQuizzes(prevQuizzes => {
-      const updatedQuizzes = prevQuizzes.filter(quiz => quiz.id !== quizId);
+      const updatedQuizzes = prevQuizzes.filter(quiz => quiz.id !== quizId)
       if (quizzes.find(q => q.id === quizId)?.isActive && updatedQuizzes.length > 0) {
-        updatedQuizzes[0].isActive = true;
-        onQuizActivated(updatedQuizzes[0].data, orderModes[updatedQuizzes[0].id] || 'random');
+        updatedQuizzes[0].isActive = true
+        onQuizActivated(updatedQuizzes[0].data, orderModes[updatedQuizzes[0].id] || 'random')
       } else if (updatedQuizzes.length === 0) {
-        onQuizActivated(null);
+        onQuizActivated(null)
       }
       
-      // Update the orderModes state
       setOrderModes(prev => {
-        const newModes = { ...prev };
-        delete newModes[quizId];
-        return newModes;
-      });
+        const newModes = { ...prev }
+        delete newModes[quizId]
+        return newModes
+      })
 
-      return updatedQuizzes;
-    });
-  };
+      localStorage.setItem('quizData', JSON.stringify(updatedQuizzes))
+      return updatedQuizzes
+    })
+  }
 
   const handleDeactivate = () => {
-    setQuizzes(prevQuizzes => 
-      prevQuizzes.map(quiz => ({
-        ...quiz,
-        isActive: false
-      }))
-    );
-    onQuizActivated(null, 'random');
-  };
-
-  const toggleOrderMode = (quizId) => {
-    const newMode = orderModes[quizId] === 'random' ? 'sequential' : 'random';
-    setOrderModes(prev => ({
-      ...prev,
-      [quizId]: newMode
-    }));
-    
-    const activeQuiz = quizzes.find(quiz => quiz.id === quizId && quiz.isActive);
-    if (activeQuiz) {
-      const quizWithId = {
-        ...activeQuiz.data,
-        id: activeQuiz.id
-      };
-      onQuizActivated(quizWithId, newMode);
-    }
-  };
-  
-  const handleActivate = (quizId) => {
     setQuizzes(prevQuizzes => {
       const updatedQuizzes = prevQuizzes.map(quiz => ({
         ...quiz,
-        isActive: quiz.id === quizId
-      }));
-      const activeQuiz = updatedQuizzes.find(q => q.id === quizId);
-      if (activeQuiz) {
-        const quizWithId = {
-          ...activeQuiz.data,
-          id: activeQuiz.id
-        };
-        onQuizActivated(quizWithId, orderModes[quizId] || 'random');
-      }
-      return updatedQuizzes;
-    });
-  };
+        isActive: false
+      }))
+      localStorage.setItem('quizData', JSON.stringify(updatedQuizzes))
+      return updatedQuizzes
+    })
+    onQuizActivated(null, 'random')
+  }
+
+  const handleActivate = (quiz) => {
+    setQuizzes(prevQuizzes => {
+      const updatedQuizzes = prevQuizzes.map(q => ({
+        ...q,
+        isActive: q.id === quiz.id
+      }))
+      localStorage.setItem('quizData', JSON.stringify(updatedQuizzes))
+      return updatedQuizzes
+    })
+    onQuizActivated(quiz.data, orderModes[quiz.id] || 'random')
+  }
 
   return (
     <div className="manage-quizzes-overlay">
-      <div className="manage-quizzes-container">
-        <div className="manage-quizzes-header">
-          <h2>Manage Quizzes</h2>
-          <button onClick={onClose} className="close-button">×</button>
+      <div className="manage-quizzes-modal">
+        <h2>Manage Quizzes</h2>
+        <div className="quiz-list">
+          {quizzes.map(quiz => (
+            <div key={quiz.id} className="quiz-item">
+              <span>{quiz.title}</span>
+              <div className="quiz-actions">
+                <button
+                  onClick={() => handleActivate(quiz)}
+                  className={`activate-button ${quiz.isActive ? 'active' : ''}`}
+                >
+                  {quiz.isActive ? 'Active' : 'Activate'}
+                </button>
+                <button onClick={() => handleDelete(quiz.id)} className="delete-button">
+                  <Trash2Icon size={16} />
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
-
-        <div className="quizzes-list">
-          {quizzes.length === 0 ? (
-            <p className="no-quizzes-message">No question files are loaded yet.</p>
-          ) : (
-            <table>
-              <thead>
-                <tr>
-                  <th>Quiz Title</th>
-                  <th className="questions-count-header">Questions</th>
-                  <th className="order-header">Order</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {quizzes.map(quiz => (
-                  <tr key={quiz.id} className={quiz.isActive ? 'active-row' : ''}>
-                    <td className="quiz-title-cell">{quiz.title}</td>
-                    <td className="questions-count-cell">{quiz.data.questions.length}</td>
-                    <td className="order-cell">
-                      <button 
-                        onClick={() => toggleOrderMode(quiz.id)}
-                        className={`order-button ${orderModes[quiz.id]}`}
-                      >
-                        {orderModes[quiz.id] === 'random' ? 'Random' : 'Sequential'}
-                      </button>
-                    </td>
-                    <td className="quiz-actions-cell">
-                      {quiz.isActive ? (
-                        <button 
-                          onClick={handleDeactivate}
-                          className="activate-button active"
-                        >
-                          Active
-                        </button>
-                      ) : (
-                        <button 
-                          onClick={() => handleActivate(quiz.id)}
-                          className="activate-button inactive"
-                        >
-                          Inactive
-                        </button>
-                      )}
-                      <button 
-                        onClick={() => handleDelete(quiz.id)}
-                        className="delete-button-icon"
-                        title="Delete quiz"
-                      >
-                        <TrashIcon />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-
         <div className="upload-section">
           {uploadError && <p className="upload-error">{uploadError}</p>}
           <div className="upload-buttons-container">
@@ -236,10 +173,9 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
             </button>
           </div>
         </div>
-
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ManageQuizzes;
+export default ManageQuizzes
