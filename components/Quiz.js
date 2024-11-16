@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { loadDefaultQuestions } from '../utils/loadDefaultQuestions'
-import QuizComplete from './QuizComplete'
 import ManageQuizzes from './ManageQuizzes'
 
 const LOCAL_STORAGE_KEY = 'quizData'
