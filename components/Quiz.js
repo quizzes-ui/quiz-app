@@ -1,8 +1,10 @@
+// components/Quiz.js
+
 import React, { useState, useEffect, useCallback } from 'react';
 import ManageQuizzes from './ManageQuizzes';
 import MenuDropdown from './MenuDropdown';
 import { CheckIcon, XIcon } from './Icons';
-
+import useLocalStorage from '../hooks/useLocalStorage';
 
 function Question({ question, onAnswerSubmit, selectedAnswer, showJustification, currentQuestionIndex, totalQuestions }) {
   if (!question) return null;
@@ -151,25 +153,16 @@ export default function Quiz() {
   const [showManageQuizzes, setShowManageQuizzes] = useState(false);
   const [randomizedQuestions, setRandomizedQuestions] = useState([]);
   const [correctAnswers, setCorrectAnswers] = useState(0);
-  const [quizzes, setQuizzes] = useState(() => {
-    const storedQuizzes = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (storedQuizzes) {
-      try {
-        return JSON.parse(storedQuizzes);
-      } catch (e) {
-        return [];
-      }
-    }
-    return [];
-  });
+  const [quizzes, setQuizzes] = useLocalStorage(LOCAL_STORAGE_KEY, []);
+  const [orderModes, setOrderModes] = useState({});
 
-  const [orderModes, setOrderModes] = useState(() => {
+  useEffect(() => {
     const modes = {};
     quizzes.forEach(quiz => {
       modes[quiz.id] = 'random';
     });
-    return modes;
-  });
+    setOrderModes(modes);
+  }, [quizzes]);
 
   useEffect(() => {
     const activeQuiz = quizzes.find(quiz => quiz.isActive);
@@ -187,10 +180,6 @@ export default function Quiz() {
       setQuizData(null);
       setOrderModes({});
     }
-  }, [quizzes]);
-
-  useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(quizzes));
   }, [quizzes]);
 
   useEffect(() => {
@@ -327,7 +316,7 @@ export default function Quiz() {
           )}
         </>
       )}
-      <div className="version-tag">Version 2.1</div>
+      <div className="version-tag">Version 1.9</div>
     </div>
   );
 }
