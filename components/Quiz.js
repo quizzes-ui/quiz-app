@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { loadDefaultQuestions } from '../utils/loadDefaultQuestions'
-import Question from './Question'
 import QuizComplete from './QuizComplete'
 import ManageQuizzes from './ManageQuizzes'
 
@@ -183,7 +182,7 @@ export default function Quiz() {
           )}
         </>
       )}
-      <div className="version-tag">Version 2.5</div>
+      <div className="version-tag">Version 2.6</div>
     </div>
   )
 }
