@@ -7,18 +7,19 @@ export default function TestDB() {
   const [dbStatus, setDbStatus] = useState('Checking connection...')
 
   useEffect(() => {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    )
+    const supabaseUrl = "https://kmnayihvsegmrppiuphc.supabase.co"
+    const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttbmF5aWh2c2VnbXJwcGl1cGhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE3NzEzODIsImV4cCI6MjA0NzM0NzM4Mn0.ScJsOY6aH0NEorfkUU29L-2fGlc9QQSRS8f6uHU_5hg"
+
+    const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
     async function testConnection() {
       try {
-        const { data, error } = await supabase.rpc('ping')
+        const { data, error } = await supabase.from('quizzes').select('count', { count: 'exact', head: true })
         
         if (error) throw error
 
         setDbStatus('Connected successfully')
+        console.log('Connection successful:', data)
       } catch (error) {
         console.error('Error connecting to the database:', error)
         setDbStatus('Failed to connect')
