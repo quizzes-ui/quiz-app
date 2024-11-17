@@ -5,7 +5,7 @@ import TestDB from '../components/testDB';
 const Home = () => {
   return (
     <div>
-      <TestDB />
+      <QuestionsDB />
       <Quiz />
       <div className="version-tag">Version 3.1</div>
     </div>
