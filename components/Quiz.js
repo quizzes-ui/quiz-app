@@ -275,28 +275,63 @@ export default function Quiz() {
   };
 
 
-  const handleAnswerSubmit = (answer) => {
-    setSelectedAnswer(answer);
-    setShowJustification(true);
-    if (answer === (isInRepeatPhase ? questionsToRepeat[currentQuestionIndex].correctAnswer : randomizedQuestions[currentQuestionIndex].correctAnswer)) {
-      if (!isInRepeatPhase) {
-        setCorrectAnswers(prev => prev + 1);
-      }
-      setTimeout(goToNextQuestion, CORRECT_ANSWER_DELAY);
-    } else {
-      if (!isInRepeatPhase) {
-        const wrongQuestion = {
-          ...randomizedQuestions[currentQuestionIndex],
-          userAnswer: answer
-        };
-        setQuestionsToRepeat(prev => [...prev, wrongQuestion]);
-      }
-      // Don't automatically go to next question for wrong answers in repeat phase
-      if (isInRepeatPhase) {
-        setShowJustification(true);
-      } else {
-        setTimeout(goToNextQuestion, CORRECT_ANSWER_DELAY);
-      }
-    }
-  };
+  return (
+    <div className="quiz-container">
+      <Header 
+        title={quizData?.title || "Quiz App"}
+        onRestartQuiz={handleRestart}
+        onManageQuizzes={() => setShowManageQuizzes(true)}
+        orderModes={orderModes}
+        setOrderModes={setOrderModes}
+      />
+      {showManageQuizzes && (
+        <ManageQuizzes
+          onClose={() => setShowManageQuizzes(false)}
+          onQuizActivated={handleQuizActivated}
+          quizzes={quizzes}
+          setQuizzes={setQuizzes}
+          orderModes={orderModes}
+          setOrderModes={setOrderModes}
+        />
+      )}
+      {!quizData ? (
+        <div className="empty-state">
+          <p>No questions loaded. Please upload a question file to start.</p>
+          <button 
+            onClick={() => setShowManageQuizzes(true)}
+            className="quiz-button"
+          >
+            Upload Questions
+          </button>
+        </div>
+      ) : !randomizedQuestions.length ? (
+        <div>Loading...</div>
+      ) : isQuizComplete ? (
+        <QuizComplete 
+          correctAnswers={correctAnswers}
+          initialQuestionCount={initialQuestionCount}
+        />
+      ) : (
+        <>
+          <Question 
+            question={isInRepeatPhase ? questionsToRepeat[currentQuestionIndex] : randomizedQuestions[currentQuestionIndex]} 
+            onAnswerSubmit={handleAnswerSubmit}
+            selectedAnswer={selectedAnswer}
+            showJustification={showJustification}
+            currentQuestionIndex={isInRepeatPhase ? initialQuestionCount + currentQuestionIndex : currentQuestionIndex}
+            initialQuestionCount={initialQuestionCount}
+            isInRepeatPhase={isInRepeatPhase}
+          />
+          {showJustification && selectedAnswer !== (isInRepeatPhase ? questionsToRepeat[currentQuestionIndex].correctAnswer : randomizedQuestions[currentQuestionIndex].correctAnswer) && (
+            <button
+              onClick={goToNextQuestion}
+              className="quiz-button"
+            >
+              {(isInRepeatPhase && currentQuestionIndex === questionsToRepeat.length - 1) ? 'Finish Quiz' : 'Next Question'}
+            </button>
+          )}
+        </>
+      )}
+    </div>
+  );
 }
