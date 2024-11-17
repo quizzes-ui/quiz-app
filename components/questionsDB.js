@@ -18,7 +18,7 @@ export default function QuestionsDB() {
       try {
         const { data, error } = await supabase
           .from('question-files')
-          .select('id, question_file_name')
+          .select('id, question-file-name')
 
         if (error) throw error
 
