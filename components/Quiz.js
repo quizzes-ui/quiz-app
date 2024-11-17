@@ -1,10 +1,10 @@
 // components/Quiz.js
 
 import React, { useState, useEffect, useCallback } from 'react';
+import ManageQuizzes from './ManageQuizzes';
 import MenuDropdown from './MenuDropdown';
 import { CheckIcon, XIcon } from './Icons';
 import useLocalStorage from '../hooks/useLocalStorage';
-import QuizzesDB from './QuizzesDB';
 
 function Question({ question, onAnswerSubmit, selectedAnswer, showJustification, currentQuestionIndex, totalQuestions }) {
   if (!question) return null;
