@@ -180,15 +180,8 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
           <tr key={quiz.id} className={quiz.isActive ? 'active-row' : ''}>
             <td className="quiz-title-cell">{quiz.title}</td>
             <td className="questions-count-cell">{quiz.data.questions.length}</td>
-            <td className="order-cell">
-              <button 
-                onClick={() => toggleOrderMode(quiz.id)}
-                className={`order-button ${orderModes[quiz.id]}`}
-                disabled={!quiz.isActive}
-              >
-                {orderModes[quiz.id] === 'random' ? 'Random' : 'Sequential'}
-              </button>
-            </td>
+            
+           
             <td className="quiz-actions-cell">
               {quiz.isActive ? (
                 <button 
@@ -205,6 +198,17 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
                   Inactive
                 </button>
               )}
+               </td>
+               <td className="order-cell">
+              <button 
+                onClick={() => toggleOrderMode(quiz.id)}
+                className={`order-button ${orderModes[quiz.id]}`}
+                disabled={!quiz.isActive}
+              >
+                {orderModes[quiz.id] === 'random' ? 'Random' : 'Sequential'}
+              </button>
+            </td>
+               <td>
               <button 
                 onClick={() => handleDelete(quiz.id)}
                 className="delete-button-icon"
