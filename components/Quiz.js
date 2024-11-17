@@ -10,10 +10,10 @@ function WrongAnswersDisplay({ wrongAnswers }) {
   return (
     <div className="wrong-answers-display">
       {wrongAnswers.map((item, index) => (
-        <div key={index} className="wrong-answer-banner">
-          <h4>Question: {item.question}</h4>
-          <p>Your answer: {item.wrongAnswer} ({item.wrongAnswerLetter})</p>
-          <p>Correct answer: {item.correctAnswer} ({item.correctAnswerLetter})</p>
+        <div key={index} className="wrong-answer-panel">
+          <h4 className="wrong-answer-question">{item.question}</h4>
+          <p className="wrong-answer-user">Your answer: {item.wrongAnswer} ({item.wrongAnswerLetter})</p>
+          <p className="wrong-answer-correct">Correct answer: {item.correctAnswer} ({item.correctAnswerLetter})</p>
         </div>
       ))}
     </div>
