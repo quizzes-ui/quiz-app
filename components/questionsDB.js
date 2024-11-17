@@ -17,7 +17,7 @@ export default function QuestionsDB() {
     async function fetchQuestions() {
       try {
         const { data, error } = await supabase
-          .from('quizzes')
+          .from('question-files')
           .select('id, question_file_name')
 
         if (error) throw error
