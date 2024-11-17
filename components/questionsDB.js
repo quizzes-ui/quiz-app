@@ -10,6 +10,7 @@ export default function QuestionsDB() {
   useEffect(() => {
     const supabaseUrl = "https://kmnayihvsegmrppiuphc.supabase.co"
     const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttbmF5aWh2c2VnbXJwcGl1cGhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE3NzEzODIsImV4cCI6MjA0NzM0NzM4Mn0.ScJsOY6aH0NEorfkUU29L-2fGlc9QQSRS8f6uHU_5hg"
+    
 
     const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
