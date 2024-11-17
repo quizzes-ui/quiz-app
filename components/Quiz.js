@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useLocalStorage } from './useLocalStorage'
+import { useLocalStorage } from '../hooks/useLocalStorage'
 import ManageQuizzes from './ManageQuizzes'
 
 function QuizComplete({ correctAnswers, totalQuestions, wrongAnswers }) {
