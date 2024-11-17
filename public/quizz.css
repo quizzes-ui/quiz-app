@@ -668,6 +668,6 @@ body {
 }
 
 .order-button:disabled {
-  opacity: 0.5;
+  opacity: 0;
   cursor: not-allowed;
 }
