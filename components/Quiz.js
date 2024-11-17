@@ -217,7 +217,8 @@ export default function Quiz() {
   const handleAnswerSubmit = (answer) => {
     setSelectedAnswer(answer);
     setShowJustification(true);
-    if (answer === (isInRepeatPhase ? questionsToRepeat[currentQuestionIndex].correctAnswer : randomizedQuestions[currentQuestionIndex].correctAnswer)) {
+    const currentQuestion = isInRepeatPhase ? questionsToRepeat[currentQuestionIndex] : randomizedQuestions[currentQuestionIndex];
+    if (answer === currentQuestion.correctAnswer) {
       if (!isInRepeatPhase) {
         setCorrectAnswers(prev => prev + 1);
       }
@@ -225,17 +226,13 @@ export default function Quiz() {
     } else {
       if (!isInRepeatPhase) {
         const wrongQuestion = {
-          ...randomizedQuestions[currentQuestionIndex],
+          ...currentQuestion,
           userAnswer: answer
         };
         setQuestionsToRepeat(prev => [...prev, wrongQuestion]);
       }
-      // Don't automatically go to next question for wrong answers in repeat phase
-      if (isInRepeatPhase) {
-        setShowJustification(true);
-      } else {
-        setTimeout(goToNextQuestion, CORRECT_ANSWER_DELAY);
-      }
+      // Remove the automatic transition for wrong answers
+      // The "Next Question" button will handle this case
     }
   };
 
@@ -330,6 +327,9 @@ export default function Quiz() {
               {(isInRepeatPhase && currentQuestionIndex === questionsToRepeat.length - 1) ? 'Finish Quiz' : 'Next Question'}
             </button>
           )}
+
+
+          
         </>
       )}
     </div>
