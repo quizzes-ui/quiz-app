@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MenuIcon, UploadIcon, RestartIcon, DatabaseIcon } from './Icons';
+import { MenuIcon, UploadIcon, RestartIcon } from './Icons';
 
 function MenuDropdown({ 
   isUsingCustomQuestions, 
@@ -9,8 +9,7 @@ function MenuDropdown({
   uploadSuccess,
   onManageQuizzes,
   orderModes,
-  setOrderModes,
-  onManageDB // Add this new prop
+  setOrderModes
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
@@ -48,17 +47,6 @@ function MenuDropdown({
             </button>
           </div>
 
-          {/* Add the new Manage Database option */}
-          <div className="menu-item">
-            <button onClick={() => {
-              onManageDB();
-              setIsOpen(false);
-            }} className="manage-db-button">
-              <DatabaseIcon /> {/* You'll need to create this icon */}
-              <span>Manage Database</span>
-            </button>
-          </div>
-
           {isUsingCustomQuestions && (
             <div className="menu-item">
               <button 
@@ -79,7 +67,19 @@ function MenuDropdown({
               className="restart-button" 
               title="Restart Quiz"
             >
-              <RestartIcon />
+              <svg 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2.5" 
+                className="restart-icon"
+              >
+                <path 
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
               <span>Restart Quiz</span>
             </button>
           </div>

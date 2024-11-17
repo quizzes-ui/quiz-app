@@ -95,18 +95,3 @@ export const RestartIcon = () => (
     />
   </svg>
 );
-
-export const DatabaseIcon = () => (
-  <svg 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    className="database-icon"
-  >
-    <path d="M4 6h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z" />
-    <path d="M12 6v12" />
-    <path d="M4 10h16" />
-    <path d="M4 14h16" />
-  </svg>
-);
