@@ -27,7 +27,40 @@ function Question({ question, onAnswerSubmit, selectedAnswer, showJustification,
           />
         </div>
       </div>
-      {/* Rest of the Question component remains the same */}
+      <h2>{question.texte}</h2>
+      <div className="options-container">
+        {['A', 'B', 'C'].map((option) => (
+          <label 
+            key={option}
+            className={`option-label ${selectedAnswer === option ? 
+              (question.correctAnswer === option ? 'selected correct' : 'selected incorrect') : 
+              (showJustification && question.correctAnswer === option ? 'correct-answer' : '')} 
+              ${showJustification ? 'disabled' : ''}`}
+          >
+            <input
+              type="radio"
+              name="answer"
+              value={option}
+              className="radio-input"
+              onChange={() => handleAnswerSelect(option)}
+              checked={selectedAnswer === option}
+              disabled={showJustification}
+            />
+            <span className="option-text">{question[`answer${option}`]}</span>
+          </label>
+        ))}
+      </div>
+      {showJustification && (
+        <div className={`justification ${selectedAnswer === question.correctAnswer ? 'correct' : 'incorrect'}`}>
+          <div className="feedback-with-icon">
+            {selectedAnswer === question.correctAnswer ? <CheckIcon /> : <XIcon />}
+            <p className="answer-feedback">
+              {selectedAnswer === question.correctAnswer ? 'Correct!' : 'Incorrect'}
+            </p>
+          </div>
+          {selectedAnswer !== question.correctAnswer && <p>{question.justification}</p>}
+        </div>
+      )}
     </div>
   );
 }
