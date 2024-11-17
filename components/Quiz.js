@@ -12,8 +12,8 @@ function WrongAnswersDisplay({ wrongAnswers }) {
       {wrongAnswers.map((item, index) => (
         <div key={index} className="wrong-answer-panel">
           <h4 className="wrong-answer-question">{item.question}</h4>
-          <p className="wrong-answer-user">Your answer: {item.wrongAnswer} ({item.wrongAnswerLetter})</p>
-          <p className="wrong-answer-correct">Correct answer: {item.correctAnswer} ({item.correctAnswerLetter})</p>
+          <p className="wrong-answer-user">Your answer: {item.wrongAnswer} </p>
+          <p className="wrong-answer-correct">Correct answer: {item.correctAnswer} </p>
         </div>
       ))}
     </div>
@@ -177,6 +177,8 @@ export default function Quiz() {
   const [quizzes, setQuizzes] = useLocalStorage(LOCAL_STORAGE_KEY, []);
   const [orderModes, setOrderModes] = useState({});
   const [wrongAnswers, setWrongAnswers] = useState([]);
+  const [questionsToRepeat, setQuestionsToRepeat] = useState([]);
+  const [isInRepeatPhase, setIsInRepeatPhase] = useState(false);
 
   useEffect(() => {
     const modes = {};
@@ -223,10 +225,19 @@ export default function Quiz() {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setSelectedAnswer('');
       setShowJustification(false);
+    } else if (!isInRepeatPhase && questionsToRepeat.length > 0) {
+      setIsInRepeatPhase(true);
+      setCurrentQuestionIndex(0);
+      setSelectedAnswer('');
+      setShowJustification(false);
+    } else if (isInRepeatPhase && currentQuestionIndex < questionsToRepeat.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setSelectedAnswer('');
+      setShowJustification(false);
     } else {
       setIsQuizComplete(true);
     }
-  }, [currentQuestionIndex, randomizedQuestions.length]);
+  }, [currentQuestionIndex, randomizedQuestions.length, isInRepeatPhase, questionsToRepeat.length]);
 
   useEffect(() => {
     const handleKeyPress = (event) => {
@@ -246,13 +257,11 @@ export default function Quiz() {
       setCorrectAnswers(prev => prev + 1);
       setTimeout(goToNextQuestion, CORRECT_ANSWER_DELAY);
     } else {
-      setWrongAnswers(prev => [...prev, {
-        question: randomizedQuestions[currentQuestionIndex].texte,
-        wrongAnswer: randomizedQuestions[currentQuestionIndex][`answer${answer}`],
-        correctAnswer: randomizedQuestions[currentQuestionIndex][`answer${randomizedQuestions[currentQuestionIndex].correctAnswer}`],
-        wrongAnswerLetter: answer,
-        correctAnswerLetter: randomizedQuestions[currentQuestionIndex].correctAnswer
-      }]);
+      const wrongQuestion = {
+        ...randomizedQuestions[currentQuestionIndex],
+        userAnswer: answer
+      };
+      setQuestionsToRepeat(prev => [...prev, wrongQuestion]);
     }
   };
 
@@ -326,25 +335,25 @@ export default function Quiz() {
       ) : isQuizComplete ? (
         <QuizComplete 
           correctAnswers={correctAnswers}
-          totalQuestions={randomizedQuestions.length}
-          wrongAnswers={wrongAnswers}
+          totalQuestions={randomizedQuestions.length + questionsToRepeat.length}
+          wrongAnswers={questionsToRepeat}
         />
       ) : (
         <>
           <Question 
-            question={randomizedQuestions[currentQuestionIndex]} 
+            question={isInRepeatPhase ? questionsToRepeat[currentQuestionIndex] : randomizedQuestions[currentQuestionIndex]} 
             onAnswerSubmit={handleAnswerSubmit}
             selectedAnswer={selectedAnswer}
             showJustification={showJustification}
             currentQuestionIndex={currentQuestionIndex}
-            totalQuestions={randomizedQuestions.length}
+            totalQuestions={randomizedQuestions.length + questionsToRepeat.length}
           />
-          {showJustification && selectedAnswer !== randomizedQuestions[currentQuestionIndex].correctAnswer && (
+          {showJustification && selectedAnswer !== (isInRepeatPhase ? questionsToRepeat[currentQuestionIndex].correctAnswer : randomizedQuestions[currentQuestionIndex].correctAnswer) && (
             <button
               onClick={goToNextQuestion}
               className="quiz-button"
             >
-              {currentQuestionIndex === randomizedQuestions.length - 1 ? 'Finish Quiz' : 'Next Question'}
+              {(isInRepeatPhase && currentQuestionIndex === questionsToRepeat.length - 1) || (!isInRepeatPhase && currentQuestionIndex === randomizedQuestions.length - 1) ? 'Finish Quiz' : 'Next Question'}
             </button>
           )}
         </>
