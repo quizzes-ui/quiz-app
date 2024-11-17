@@ -7,7 +7,6 @@ import QuestionsDB from '../components/questionsDB';
 const Home = () => {
   return (
     <div>
-      <QuestionsDB />
       <Quiz />
       <div className="version-tag">Version 3.1</div>
     </div>
