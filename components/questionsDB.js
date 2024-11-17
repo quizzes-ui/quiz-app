@@ -42,6 +42,8 @@ export default function QuestionsDB() {
   }
 
   const formatContent = (content) => {
+    if (!content) return 'No content available'
+
     if (typeof content === 'string') {
       try {
         content = JSON.parse(content)
@@ -49,7 +51,15 @@ export default function QuestionsDB() {
         return 'Invalid JSON'
       }
     }
-    return `${content.title} (${content.questions.length} questions)`
+
+    if (typeof content !== 'object' || content === null) {
+      return 'Invalid content format'
+    }
+
+    const title = content.title || 'Untitled'
+    const questionCount = Array.isArray(content.questions) ? content.questions.length : 0
+
+    return `${title} (${questionCount} questions)`
   }
 
   return (
