@@ -629,3 +629,32 @@ body {
   background-color: #2563eb;
 }
 
+.wrong-answers-table {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.wrong-answers-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.wrong-answers-table th, 
+.wrong-answers-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.wrong-answers-table th {
+  background-color: #f2f2f2;
+}
+
+.wrong-answers-table .wrong-answer {
+  background-color: #ffcccc;
+}
+
+.wrong-answers-table .correct-answer {
+  background-color: #ccffcc;
+}
+
