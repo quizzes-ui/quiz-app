@@ -52,7 +52,7 @@ export default function QuestionsDB() {
             {questions.map((question) => (
               <tr key={question.id} className="border-b hover:bg-gray-100">
                 <td className="px-4 py-2">{question.id}</td>
-                <td className="px-4 py-2">{question.question_file_name}</td>
+                <td className="px-4 py-2">{question.question-file-name}</td>
               </tr>
             ))}
           </tbody>
