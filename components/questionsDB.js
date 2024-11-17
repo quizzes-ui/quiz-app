@@ -10,7 +10,6 @@ export default function QuestionsDB() {
   useEffect(() => {
     const supabaseUrl = "https://kmnayihvsegmrppiuphc.supabase.co"
     const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttbmF5aWh2c2VnbXJwcGl1cGhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE3NzEzODIsImV4cCI6MjA0NzM0NzM4Mn0.ScJsOY6aH0NEorfkUU29L-2fGlc9QQSRS8f6uHU_5hg"
-    
 
     const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
@@ -18,17 +17,15 @@ export default function QuestionsDB() {
       try {
         const { data, error } = await supabase
           .from('question-files')
-          .select('id, name')
+          .select('id, name, created_at, content')
         
         if (error) throw error
 
         if (data && data.length > 0) {
           setQuestions(data)
           setDbStatus('Questions fetched successfully')
-          console.log('Fetched questions:', data)
         } else {
           setDbStatus('No questions found in the database')
-          console.log('No questions found')
         }
       } catch (error) {
         console.error('Error fetching questions:', error)
@@ -38,6 +35,22 @@ export default function QuestionsDB() {
 
     fetchQuestions()
   }, [])
+
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }
+    return new Date(dateString).toLocaleDateString(undefined, options)
+  }
+
+  const formatContent = (content) => {
+    if (typeof content === 'string') {
+      try {
+        content = JSON.parse(content)
+      } catch (e) {
+        return 'Invalid JSON'
+      }
+    }
+    return `${content.title} (${content.questions.length} questions)`
+  }
 
   return (
     <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
@@ -50,6 +63,8 @@ export default function QuestionsDB() {
             <tr>
               <th className="py-2 px-4 border-b text-left">ID</th>
               <th className="py-2 px-4 border-b text-left">Question File Name</th>
+              <th className="py-2 px-4 border-b text-left">Created At</th>
+              <th className="py-2 px-4 border-b text-left">Content Preview</th>
             </tr>
           </thead>
           <tbody>
@@ -58,21 +73,17 @@ export default function QuestionsDB() {
                 <tr key={question.id} className="hover:bg-gray-50">
                   <td className="py-2 px-4 border-b">{question.id}</td>
                   <td className="py-2 px-4 border-b">{question.name}</td>
+                  <td className="py-2 px-4 border-b">{formatDate(question.created_at)}</td>
+                  <td className="py-2 px-4 border-b">{formatContent(question.content)}</td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={2} className="py-2 px-4 border-b text-center">No questions found</td>
+                <td colSpan={4} className="py-2 px-4 border-b text-center">No questions found</td>
               </tr>
             )}
           </tbody>
         </table>
-      </div>
-      <div className="mt-4">
-        <h3 className="text-lg font-semibold mb-2">Debug Information:</h3>
-        <pre className="bg-gray-100 p-4 rounded overflow-x-auto">
-          {JSON.stringify({ dbStatus, questions }, null, 2)}
-        </pre>
       </div>
     </div>
   )
