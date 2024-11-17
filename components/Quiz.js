@@ -2,8 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useLocalStorage } from './useLocalStorage'
-import Header from './Header'
-import Question from './Question'
 import ManageQuizzes from './ManageQuizzes'
 
 function QuizComplete({ correctAnswers, totalQuestions, wrongAnswers }) {
@@ -187,13 +185,11 @@ export default function Quiz() {
 
   return (
     <div className="quiz-container">
-      <Header 
-        title={quizData?.title || "Quiz App"}
-        onRestartQuiz={handleRestart}
-        onManageQuizzes={() => setShowManageQuizzes(true)}
-        orderModes={orderModes}
-        setOrderModes={setOrderModes}
-      />
+      <div className="quiz-header-container">
+        <h1 className="quiz-header">{quizData?.title || "Quiz App"}</h1>
+        <button onClick={handleRestart} className="quiz-button">Restart Quiz</button>
+        <button onClick={() => setShowManageQuizzes(true)} className="quiz-button">Manage Quizzes</button>
+      </div>
       {showManageQuizzes && (
         <ManageQuizzes
           onClose={() => setShowManageQuizzes(false)}
@@ -223,15 +219,44 @@ export default function Quiz() {
           wrongAnswers={wrongAnswers}
         />
       ) : (
-        <>
-          <Question 
-            question={randomizedQuestions[currentQuestionIndex]} 
-            onAnswerSubmit={handleAnswerSubmit}
-            selectedAnswer={selectedAnswer}
-            showJustification={showJustification}
-            currentQuestionIndex={currentQuestionIndex}
-            totalQuestions={randomizedQuestions.length}
-          />
+        <div className="question-container">
+          <div className="progress-header">
+            <h3>Question {currentQuestionIndex + 1} of {randomizedQuestions.length}</h3>
+            <div className="progress-bar-container">
+              <div 
+                className="progress-bar-fill" 
+                style={{ width: `${((currentQuestionIndex + 1) / randomizedQuestions.length) * 100}%` }}
+              />
+            </div>
+          </div>
+          <h2>{randomizedQuestions[currentQuestionIndex].texte}</h2>
+          <div className="options-container">
+            {['A', 'B', 'C'].map((option) => (
+              <label 
+                key={option}
+                className={`option-label ${selectedAnswer === option ? 
+                  (randomizedQuestions[currentQuestionIndex].correctAnswer === option ? 'selected correct' : 'selected incorrect') : 
+                  (showJustification && randomizedQuestions[currentQuestionIndex].correctAnswer === option ? 'correct-answer' : '')} 
+                  ${showJustification ? 'disabled' : ''}`}
+              >
+                <input
+                  type="radio"
+                  name="answer"
+                  value={option}
+                  className="radio-input"
+                  onChange={() => !showJustification && handleAnswerSubmit(option)}
+                  checked={selectedAnswer === option}
+                  disabled={showJustification}
+                />
+                <span className="option-text">{randomizedQuestions[currentQuestionIndex][`answer${option}`]}</span>
+              </label>
+            ))}
+          </div>
+          {showJustification && (
+            <div className="justification">
+              <p>{randomizedQuestions[currentQuestionIndex].justification}</p>
+            </div>
+          )}
           {showJustification && selectedAnswer !== randomizedQuestions[currentQuestionIndex].correctAnswer && (
             <button
               onClick={goToNextQuestion}
@@ -240,9 +265,9 @@ export default function Quiz() {
               {currentQuestionIndex === randomizedQuestions.length - 1 ? 'Finish Quiz' : 'Next Question'}
             </button>
           )}
-        </>
+        </div>
       )}
-      <div className="version-tag">Version 3.3.</div>
+      <div className="version-tag">Version 1.9</div>
     </div>
   )
 }
