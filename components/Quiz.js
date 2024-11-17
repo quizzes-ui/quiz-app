@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useLocalStorage } from './useLocalStorage'
+import { useLocalStorage } from './hooks/useLocalStorage'
 import Header from './Header'
 import Question from './Question'
 import ManageQuizzes from './ManageQuizzes'
