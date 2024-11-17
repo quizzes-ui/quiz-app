@@ -140,24 +140,7 @@ function QuizComplete({ correctAnswers, totalQuestions, wrongAnswers }) {
       {wrongAnswers.length > 0 && (
         <>
           <h3>Wrong Answers:</h3>
-          <table className="wrong-answers-table">
-            <thead>
-              <tr>
-                <th>Question</th>
-                <th>Your Answer</th>
-                <th>Correct Answer</th>
-              </tr>
-            </thead>
-            <tbody>
-              {wrongAnswers.map((item, index) => (
-                <tr key={index}>
-                  <td>{item.question}</td>
-                  <td>{item.wrongAnswer}</td>
-                  <td>{item.correctAnswer}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <WrongAnswersDisplay wrongAnswers={wrongAnswers} />
         </>
       )}
     </div>
@@ -250,35 +233,27 @@ export default function Quiz() {
     } else {
       setWrongAnswers(prev => [...prev, {
         question: randomizedQuestions[currentQuestionIndex].texte,
-        wrongAnswer: answer,
-        correctAnswer: randomizedQuestions[currentQuestionIndex].correctAnswer
+        wrongAnswer: randomizedQuestions[currentQuestionIndex][`answer${answer}`],
+        correctAnswer: randomizedQuestions[currentQuestionIndex][`answer${randomizedQuestions[currentQuestionIndex].correctAnswer}`],
+        wrongAnswerLetter: answer,
+        correctAnswerLetter: randomizedQuestions[currentQuestionIndex].correctAnswer
       }]);
     }
   };
 
-  function WrongAnswersTable({ wrongAnswers }) {
+  function WrongAnswersDisplay({ wrongAnswers }) {
     return (
-      <table className="wrong-answers-table">
-        <thead>
-          <tr>
-            <th>Question</th>
-            <th>Your Answer</th>
-            <th>Correct Answer</th>
-          </tr>
-        </thead>
-        <tbody>
-          {wrongAnswers.map((item, index) => (
-            <tr key={index}>
-              <td>{item.question}</td>
-              <td>{item.wrongAnswer}</td>
-              <td>{item.correctAnswer}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="wrong-answers-display">
+        {wrongAnswers.map((item, index) => (
+          <div key={index} className="wrong-answer-banner">
+            <h4>Question: {item.question}</h4>
+            <p>Your answer: {item.wrongAnswer} ({item.wrongAnswerLetter})</p>
+            <p>Correct answer: {item.correctAnswer} ({item.correctAnswerLetter})</p>
+          </div>
+        ))}
+      </div>
     );
   }
-
 
 
   const handleRestart = () => {
