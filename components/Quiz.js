@@ -5,9 +5,17 @@ import ManageQuizzes from './ManageQuizzes';
 import MenuDropdown from './MenuDropdown';
 import { CheckIcon, XIcon } from './Icons';
 import useLocalStorage from '../hooks/useLocalStorage';
+import { shuffleArray } from './utils';
 
 
 function Question({ question, onAnswerSubmit, selectedAnswer, showJustification, currentQuestionIndex, initialQuestionCount, isInRepeatPhase }) {
+  const [shuffledOptions, setShuffledOptions] = useState([]);
+
+  useEffect(() => {
+    const options = ['A', 'B', 'C'];
+    setShuffledOptions(shuffleArray(options));
+  }, [question]);
+
   if (!question) return null;
 
   const handleAnswerSelect = (answer) => {
@@ -33,7 +41,7 @@ function Question({ question, onAnswerSubmit, selectedAnswer, showJustification,
       </div>
       <h2>{question.texte}</h2>
       <div className="options-container">
-        {['A', 'B', 'C'].map((option) => (
+        {shuffledOptions.map((option) => (
           <label 
             key={option}
             className={`option-label ${selectedAnswer === option ? 
@@ -243,17 +251,20 @@ export default function Quiz() {
     setShowJustification(false);
     setIsQuizComplete(false);
     setCorrectAnswers(0);
+    setQuestionsToRepeat([]);
+    setIsInRepeatPhase(false);
     
     if (quizData && quizData.questions) {
       const currentQuestions = [...quizData.questions];
       const mode = quizData.id && orderModes[quizData.id] ? orderModes[quizData.id] : 'random';
       
       setRandomizedQuestions(mode === 'random' ? 
-        currentQuestions.sort(() => Math.random() - 0.5) : 
+        shuffleArray(currentQuestions) : 
         currentQuestions
       );
     }
   };
+  
 
   const handleQuizActivated = (quizData, orderMode) => {
     if (!quizData) {
