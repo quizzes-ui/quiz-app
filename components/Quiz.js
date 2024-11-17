@@ -115,9 +115,9 @@ function Header({
   );
 }
 
-function QuizComplete({ correctAnswers, totalQuestions }) {
+function QuizComplete({ correctAnswers, totalQuestions, wrongAnswers }) {
   const normalizedScore = (correctAnswers / totalQuestions) * 20;
-  
+
   useEffect(() => {
     const handleKeyPress = (event) => {
       if (event.key === 'Enter') {
@@ -137,6 +137,29 @@ function QuizComplete({ correctAnswers, totalQuestions }) {
       <button onClick={() => window.location.reload()} className="quiz-button">
         Try Again
       </button>
+      {wrongAnswers.length > 0 && (
+        <>
+          <h3>Wrong Answers:</h3>
+          <table className="wrong-answers-table">
+            <thead>
+              <tr>
+                <th>Question</th>
+                <th>Your Answer</th>
+                <th>Correct Answer</th>
+              </tr>
+            </thead>
+            <tbody>
+              {wrongAnswers.map((item, index) => (
+                <tr key={index}>
+                  <td>{item.question}</td>
+                  <td>{item.wrongAnswer}</td>
+                  <td>{item.correctAnswer}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      )}
     </div>
   );
 }
@@ -155,6 +178,7 @@ export default function Quiz() {
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [quizzes, setQuizzes] = useLocalStorage(LOCAL_STORAGE_KEY, []);
   const [orderModes, setOrderModes] = useState({});
+  const [wrongAnswers, setWrongAnswers] = useState([]);
 
   useEffect(() => {
     const modes = {};
@@ -223,8 +247,39 @@ export default function Quiz() {
     if (answer === randomizedQuestions[currentQuestionIndex].correctAnswer) {
       setCorrectAnswers(prev => prev + 1);
       setTimeout(goToNextQuestion, CORRECT_ANSWER_DELAY);
+    } else {
+      setWrongAnswers(prev => [...prev, {
+        question: randomizedQuestions[currentQuestionIndex].texte,
+        wrongAnswer: answer,
+        correctAnswer: randomizedQuestions[currentQuestionIndex].correctAnswer
+      }]);
     }
   };
+
+  function WrongAnswersTable({ wrongAnswers }) {
+    return (
+      <table className="wrong-answers-table">
+        <thead>
+          <tr>
+            <th>Question</th>
+            <th>Your Answer</th>
+            <th>Correct Answer</th>
+          </tr>
+        </thead>
+        <tbody>
+          {wrongAnswers.map((item, index) => (
+            <tr key={index}>
+              <td>{item.question}</td>
+              <td>{item.wrongAnswer}</td>
+              <td>{item.correctAnswer}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  }
+
+
 
   const handleRestart = () => {
     setCurrentQuestionIndex(0);
@@ -295,6 +350,7 @@ export default function Quiz() {
         <QuizComplete 
           correctAnswers={correctAnswers}
           totalQuestions={randomizedQuestions.length}
+          wrongAnswers={wrongAnswers}
         />
       ) : (
         <>

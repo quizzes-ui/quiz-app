@@ -658,3 +658,20 @@ body {
   background-color: #ccffcc;
 }
 
+.wrong-answers-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.wrong-answers-table th,
+.wrong-answers-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.wrong-answers-table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
