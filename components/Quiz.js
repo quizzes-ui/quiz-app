@@ -6,20 +6,6 @@ import MenuDropdown from './MenuDropdown';
 import { CheckIcon, XIcon } from './Icons';
 import useLocalStorage from '../hooks/useLocalStorage';
 
-function WrongAnswersDisplay({ wrongAnswers }) {
-  return (
-    <div className="wrong-answers-display">
-      {wrongAnswers.map((item, index) => (
-        <div key={index} className="wrong-answer-panel">
-          <h4 className="wrong-answer-question">{item.question}</h4>
-          <p className="wrong-answer-user">Your answer: {item.wrongAnswer} </p>
-          <p className="wrong-answer-correct">Correct answer: {item.correctAnswer} </p>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 
 function Question({ question, onAnswerSubmit, selectedAnswer, showJustification, currentQuestionIndex, totalQuestions }) {
   if (!question) return null;
@@ -152,12 +138,6 @@ function QuizComplete({ correctAnswers, totalQuestions, wrongAnswers }) {
       <button onClick={() => window.location.reload()} className="quiz-button">
         Try Again
       </button>
-      {wrongAnswers.length > 0 && (
-        <>
-          <h3>Wrong Answers:</h3>
-          <WrongAnswersDisplay wrongAnswers={wrongAnswers} />
-        </>
-      )}
     </div>
   );
 }
@@ -176,7 +156,6 @@ export default function Quiz() {
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [quizzes, setQuizzes] = useLocalStorage(LOCAL_STORAGE_KEY, []);
   const [orderModes, setOrderModes] = useState({});
-  const [wrongAnswers, setWrongAnswers] = useState([]);
   const [questionsToRepeat, setQuestionsToRepeat] = useState([]);
   const [isInRepeatPhase, setIsInRepeatPhase] = useState(false);
 
@@ -340,10 +319,9 @@ export default function Quiz() {
         <div>Loading...</div>
       ) : isQuizComplete ? (
         <QuizComplete 
-          correctAnswers={correctAnswers}
-          totalQuestions={randomizedQuestions.length + questionsToRepeat.length}
-          wrongAnswers={questionsToRepeat}
-        />
+  correctAnswers={correctAnswers}
+  totalQuestions={randomizedQuestions.length + questionsToRepeat.length}
+/>
       ) : (
         <>
           <Question 
