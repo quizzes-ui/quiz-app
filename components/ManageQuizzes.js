@@ -8,6 +8,9 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
   const [uploadError, setUploadError] = useState('')
   const [dbQuizzes, setDbQuizzes] = useState([])
 
+  // Ensure quizzes is always an array
+  const safeQuizzes = Array.isArray(quizzes) ? quizzes : []
+
   useEffect(() => {
     const supabaseUrl = "https://kmnayihvsegmrppiuphc.supabase.co"
     const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttbmF5aWh2c2VnbXJwcGl1cGhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE3NzEzODIsImV4cCI6MjA0NzM0NzM4Mn0.ScJsOY6aH0NEorfkUU29L-2fGlc9QQSRS8f6uHU_5hg"
@@ -98,7 +101,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
       const parsedData = JSON.parse(fileContent)
 
       if (validateQuestionsFormat(parsedData)) {
-        const existingQuiz = quizzes.find(quiz => quiz.title === parsedData.title)
+        const existingQuiz = safeQuizzes.find(quiz => quiz.title === parsedData.title)
         
         if (existingQuiz) {
           setUploadError('A quiz with this title already exists')
@@ -113,7 +116,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
         }
         
         setQuizzes(prevQuizzes => {
-          const updatedQuizzes = prevQuizzes.map(quiz => ({
+          const updatedQuizzes = (Array.isArray(prevQuizzes) ? prevQuizzes : []).map(quiz => ({
             ...quiz,
             isActive: false
           }))
@@ -137,8 +140,8 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
 
   const handleDelete = (quizId) => {
     setQuizzes(prevQuizzes => {
-      const updatedQuizzes = prevQuizzes.filter(quiz => quiz.id !== quizId)
-      if (quizzes.find(q => q.id === quizId)?.isActive && updatedQuizzes.length > 0) {
+      const updatedQuizzes = (Array.isArray(prevQuizzes) ? prevQuizzes : []).filter(quiz => quiz.id !== quizId)
+      if (safeQuizzes.find(q => q.id === quizId)?.isActive && updatedQuizzes.length > 0) {
         updatedQuizzes[0].isActive = true
         onQuizActivated(updatedQuizzes[0].data, orderModes[updatedQuizzes[0].id] || 'random')
       } else if (updatedQuizzes.length === 0) {
@@ -158,7 +161,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
 
   const handleDeactivate = () => {
     setQuizzes(prevQuizzes => 
-      prevQuizzes.map(quiz => ({
+      (Array.isArray(prevQuizzes) ? prevQuizzes : []).map(quiz => ({
         ...quiz,
         isActive: false
       }))
@@ -179,7 +182,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
       [quizId]: newMode
     }))
     
-    const activeQuiz = [...quizzes, ...dbQuizzes].find(quiz => quiz.id === quizId && quiz.isActive)
+    const activeQuiz = [...safeQuizzes, ...dbQuizzes].find(quiz => quiz.id === quizId && quiz.isActive)
     if (activeQuiz) {
       const quizWithId = {
         ...activeQuiz.data,
@@ -190,7 +193,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
   }
 
   const handleActivate = (quizId) => {
-    const allQuizzes = [...quizzes, ...dbQuizzes]
+    const allQuizzes = [...safeQuizzes, ...dbQuizzes]
     const updatedQuizzes = allQuizzes.map(quiz => ({
       ...quiz,
       isActive: quiz.id === quizId
@@ -209,7 +212,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
     setDbQuizzes(updatedQuizzes.filter(quiz => quiz.isFromDb))
   }
 
-  const allQuizzes = [...quizzes, ...dbQuizzes]
+  const allQuizzes = [...safeQuizzes, ...dbQuizzes]
 
   return (
     <div className="manage-quizzes-overlay">
