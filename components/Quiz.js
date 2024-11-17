@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useLocalStorage } from './hooks/useLocalStorage'
+import { useLocalStorage } from './useLocalStorage'
 import Header from './Header'
 import Question from './Question'
 import ManageQuizzes from './ManageQuizzes'
@@ -242,7 +242,7 @@ export default function Quiz() {
           )}
         </>
       )}
-      <div className="version-tag">Version 3.1</div>
+      <div className="version-tag">Version 3.3</div>
     </div>
   )
 }
