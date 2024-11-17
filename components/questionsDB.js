@@ -37,6 +37,7 @@ export default function QuestionsDB() {
   if (loading) return <div className="text-center p-4">Loading...</div>
   if (error) return <div className="text-center p-4 text-red-600">{error}</div>
 
+  console.log(questions);
   return (
     <div className="container mx-auto p-4">
       <h2 className="text-2xl font-bold mb-4">Questions Database</h2>
