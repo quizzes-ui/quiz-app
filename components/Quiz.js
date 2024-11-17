@@ -7,7 +7,7 @@ import { CheckIcon, XIcon } from './Icons';
 import useLocalStorage from '../hooks/useLocalStorage';
 
 
-function Question({ question, onAnswerSubmit, selectedAnswer, showJustification, currentQuestionIndex, initialQuestionCount }) {
+function Question({ question, onAnswerSubmit, selectedAnswer, showJustification, currentQuestionIndex, initialQuestionCount, isInRepeatPhase }) {
   if (!question) return null;
 
   const handleAnswerSelect = (answer) => {
@@ -19,7 +19,11 @@ function Question({ question, onAnswerSubmit, selectedAnswer, showJustification,
   return (
     <div className="question-container">
       <div className="progress-header">
-        <h3>Question {Math.min(currentQuestionIndex + 1, initialQuestionCount)} of {initialQuestionCount}</h3>
+        {isInRepeatPhase ? (
+          <h3>Learn from your errors</h3>
+        ) : (
+          <h3>Question {Math.min(currentQuestionIndex + 1, initialQuestionCount)} of {initialQuestionCount}</h3>
+        )}
         <div className="progress-bar-container">
           <div 
             className="progress-bar-fill" 
@@ -302,13 +306,14 @@ export default function Quiz() {
       ) : (
         <>
           <Question 
-            question={isInRepeatPhase ? questionsToRepeat[currentQuestionIndex] : randomizedQuestions[currentQuestionIndex]} 
-            onAnswerSubmit={handleAnswerSubmit}
-            selectedAnswer={selectedAnswer}
-            showJustification={showJustification}
-            currentQuestionIndex={isInRepeatPhase ? initialQuestionCount + currentQuestionIndex : currentQuestionIndex}
-            initialQuestionCount={initialQuestionCount}
-          />
+  question={isInRepeatPhase ? questionsToRepeat[currentQuestionIndex] : randomizedQuestions[currentQuestionIndex]} 
+  onAnswerSubmit={handleAnswerSubmit}
+  selectedAnswer={selectedAnswer}
+  showJustification={showJustification}
+  currentQuestionIndex={isInRepeatPhase ? initialQuestionCount + currentQuestionIndex : currentQuestionIndex}
+  initialQuestionCount={initialQuestionCount}
+  isInRepeatPhase={isInRepeatPhase}
+/>
           {showJustification && selectedAnswer !== (isInRepeatPhase ? questionsToRepeat[currentQuestionIndex].correctAnswer : randomizedQuestions[currentQuestionIndex].correctAnswer) && (
             <button
               onClick={goToNextQuestion}
