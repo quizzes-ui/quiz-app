@@ -1,10 +1,177 @@
-// components/Quiz.js
-
 import React, { useState, useEffect, useCallback } from 'react';
 import ManageQuizzes from './ManageQuizzes';
 import MenuDropdown from './MenuDropdown';
+import ManageDB from './ManageDB';
 import { CheckIcon, XIcon } from './Icons';
 import useLocalStorage from '../hooks/useLocalStorage';
+
+const CORRECT_ANSWER_DELAY = 1000;
+const LOCAL_STORAGE_KEY = 'quizData';
+
+export default function Quiz() {
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selectedAnswer, setSelectedAnswer] = useState('');
+  const [showJustification, setShowJustification] = useState(false);
+  const [isQuizComplete, setIsQuizComplete] = useState(false);
+  const [quizData, setQuizData] = useState(null);
+  const [showManageQuizzes, setShowManageQuizzes] = useState(false);
+  const [showManageDB, setShowManageDB] = useState(false);
+  const [randomizedQuestions, setRandomizedQuestions] = useState([]);
+  const [correctAnswers, setCorrectAnswers] = useState(0);
+  const [quizzes, setQuizzes] = useLocalStorage(LOCAL_STORAGE_KEY, []);
+  const [orderModes, setOrderModes] = useState({});
+
+  useEffect(() => {
+    const modes = {};
+    quizzes.forEach(quiz => {
+      modes[quiz.id] = 'random';
+    });
+    setOrderModes(modes);
+  }, [quizzes]);
+
+  const handleQuizActivated = useCallback((activatedQuiz) => {
+    setQuizData(activatedQuiz);
+    setCurrentQuestionIndex(0);
+    setSelectedAnswer('');
+    setShowJustification(false);
+    setIsQuizComplete(false);
+    setCorrectAnswers(0);
+    
+    const mode = orderModes[activatedQuiz.id] || 'random';
+    let questions = [...activatedQuiz.questions];
+    
+    if (mode === 'random') {
+      for (let i = questions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [questions[i], questions[j]] = [questions[j], questions[i]];
+      }
+    } else if (mode === 'alphabetical') {
+      questions.sort((a, b) => a.texte.localeCompare(b.texte));
+    }
+    
+    setRandomizedQuestions(questions);
+  }, [orderModes]);
+
+  const handleAnswerSubmit = (answer) => {
+    setSelectedAnswer(answer);
+    const currentQuestion = randomizedQuestions[currentQuestionIndex];
+    
+    if (answer === currentQuestion.correctAnswer) {
+      setCorrectAnswers(prev => prev + 1);
+      setTimeout(() => {
+        goToNextQuestion();
+      }, CORRECT_ANSWER_DELAY);
+    } else {
+      setShowJustification(true);
+    }
+  };
+
+  const goToNextQuestion = () => {
+    if (currentQuestionIndex < randomizedQuestions.length - 1) {
+      setCurrentQuestionIndex(prev => prev + 1);
+      setSelectedAnswer('');
+      setShowJustification(false);
+    } else {
+      setIsQuizComplete(true);
+    }
+  };
+
+  const handleRestart = () => {
+    handleQuizActivated(quizData);
+  };
+
+  const handleManageDB = () => {
+    setShowManageDB(true);
+  };
+
+  return (
+    <div className="quiz-container">
+      <Header 
+        title={quizData?.title || "Quiz App"}
+        onRestartQuiz={handleRestart}
+        onManageQuizzes={() => setShowManageQuizzes(true)}
+        onManageDB={handleManageDB}
+        orderModes={orderModes}
+        setOrderModes={setOrderModes}
+      />
+      {showManageQuizzes && (
+        <ManageQuizzes
+          onClose={() => setShowManageQuizzes(false)}
+          onQuizActivated={handleQuizActivated}
+          quizzes={quizzes}
+          setQuizzes={setQuizzes}
+          orderModes={orderModes}
+          setOrderModes={setOrderModes}
+        />
+      )}
+      {showManageDB && (
+        <ManageDB
+          onClose={() => setShowManageDB(false)}
+        />
+      )}
+      {!quizData ? (
+        <div className="empty-state">
+          <p>No questions loaded. Please upload a question file to start.</p>
+          <button 
+            onClick={() => setShowManageQuizzes(true)}
+            className="quiz-button"
+          >
+            Upload Questions
+          </button>
+        </div>
+      ) : !randomizedQuestions.length ? (
+        <div>Loading...</div>
+      ) : isQuizComplete ? (
+        <QuizComplete 
+          correctAnswers={correctAnswers}
+          totalQuestions={randomizedQuestions.length}
+        />
+      ) : (
+        <>
+          <Question 
+            question={randomizedQuestions[currentQuestionIndex]} 
+            onAnswerSubmit={handleAnswerSubmit}
+            selectedAnswer={selectedAnswer}
+            showJustification={showJustification}
+            currentQuestionIndex={currentQuestionIndex}
+            totalQuestions={randomizedQuestions.length}
+          />
+          {showJustification && selectedAnswer !== randomizedQuestions[currentQuestionIndex].correctAnswer && (
+            <button
+              onClick={goToNextQuestion}
+              className="quiz-button"
+            >
+              {currentQuestionIndex === randomizedQuestions.length - 1 ? 'Finish Quiz' : 'Next Question'}
+            </button>
+          )}
+        </>
+      )}
+      <div className="version-tag">Version 1.9</div>
+    </div>
+  );
+}
+
+function Header({ 
+  title,
+  onRestartQuiz,
+  onManageQuizzes,
+  onManageDB,
+  orderModes,
+  setOrderModes
+}) {
+  return (
+    <div className="quiz-header-container">
+      <h1 className="quiz-header">{title}</h1>
+      <MenuDropdown 
+        onRestartQuiz={onRestartQuiz}
+        onManageQuizzes={onManageQuizzes}
+        onManageDB={onManageDB}
+        orderModes={orderModes}
+        setOrderModes={setOrderModes}
+      />
+    </div>
+  );
+}
 
 function Question({ question, onAnswerSubmit, selectedAnswer, showJustification, currentQuestionIndex, totalQuestions }) {
   if (!question) return null;
@@ -95,29 +262,9 @@ function Question({ question, onAnswerSubmit, selectedAnswer, showJustification,
   );
 }
 
-function Header({ 
-  title,
-  onRestartQuiz,
-  onManageQuizzes,
-  orderModes,
-  setOrderModes
-}) {
-  return (
-    <div className="quiz-header-container">
-      <h1 className="quiz-header">{title}</h1>
-      <MenuDropdown 
-        onRestartQuiz={onRestartQuiz}
-        onManageQuizzes={onManageQuizzes}
-        orderModes={orderModes}
-        setOrderModes={setOrderModes}
-      />
-    </div>
-  );
-}
-
 function QuizComplete({ correctAnswers, totalQuestions }) {
   const normalizedScore = (correctAnswers / totalQuestions) * 20;
-  
+
   useEffect(() => {
     const handleKeyPress = (event) => {
       if (event.key === 'Enter') {
@@ -137,185 +284,6 @@ function QuizComplete({ correctAnswers, totalQuestions }) {
       <button onClick={() => window.location.reload()} className="quiz-button">
         Try Again
       </button>
-    </div>
-  );
-}
-
-export default function Quiz() {
-  const CORRECT_ANSWER_DELAY = 1000;
-  const LOCAL_STORAGE_KEY = 'quizData';
-
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState('');
-  const [showJustification, setShowJustification] = useState(false);
-  const [isQuizComplete, setIsQuizComplete] = useState(false);
-  const [quizData, setQuizData] = useState(null);
-  const [showManageQuizzes, setShowManageQuizzes] = useState(false);
-  const [randomizedQuestions, setRandomizedQuestions] = useState([]);
-  const [correctAnswers, setCorrectAnswers] = useState(0);
-  const [quizzes, setQuizzes] = useLocalStorage(LOCAL_STORAGE_KEY, []);
-  const [orderModes, setOrderModes] = useState({});
-
-  useEffect(() => {
-    const modes = {};
-    quizzes.forEach(quiz => {
-      modes[quiz.id] = 'random';
-    });
-    setOrderModes(modes);
-  }, [quizzes]);
-
-  useEffect(() => {
-    const activeQuiz = quizzes.find(quiz => quiz.isActive);
-    if (activeQuiz) {
-      const quizWithId = {
-        ...activeQuiz.data,
-        id: activeQuiz.id
-      };
-      setQuizData(quizWithId);
-      setOrderModes(prev => ({
-        ...prev,
-        [activeQuiz.id]: activeQuiz.orderMode || 'random'
-      }));
-    } else {
-      setQuizData(null);
-      setOrderModes({});
-    }
-  }, [quizzes]);
-
-  useEffect(() => {
-    if (quizData && quizData.questions) {
-      const currentQuestions = [...quizData.questions];
-      const mode = quizData.id && orderModes[quizData.id] ? orderModes[quizData.id] : 'random';
-      
-      setRandomizedQuestions(mode === 'random' ? 
-        currentQuestions.sort(() => Math.random() - 0.5) : 
-        currentQuestions
-      );
-    } else {
-      setRandomizedQuestions([]);
-    }
-  }, [quizData, orderModes]);
-
-  const goToNextQuestion = useCallback(() => {
-    if (currentQuestionIndex < randomizedQuestions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-      setSelectedAnswer('');
-      setShowJustification(false);
-    } else {
-      setIsQuizComplete(true);
-    }
-  }, [currentQuestionIndex, randomizedQuestions.length]);
-
-  useEffect(() => {
-    const handleKeyPress = (event) => {
-      if (event.key === 'Enter' && showJustification && selectedAnswer !== randomizedQuestions[currentQuestionIndex].correctAnswer) {
-        goToNextQuestion();
-      }
-    };
-
-    window.addEventListener('keypress', handleKeyPress);
-    return () => window.removeEventListener('keypress', handleKeyPress);
-  }, [showJustification, selectedAnswer, currentQuestionIndex, randomizedQuestions, goToNextQuestion]);
-
-  const handleAnswerSubmit = (answer) => {
-    setSelectedAnswer(answer);
-    setShowJustification(true);
-    if (answer === randomizedQuestions[currentQuestionIndex].correctAnswer) {
-      setCorrectAnswers(prev => prev + 1);
-      setTimeout(goToNextQuestion, CORRECT_ANSWER_DELAY);
-    }
-  };
-
-  const handleRestart = () => {
-    setCurrentQuestionIndex(0);
-    setSelectedAnswer('');
-    setShowJustification(false);
-    setIsQuizComplete(false);
-    setCorrectAnswers(0);
-    
-    if (quizData && quizData.questions) {
-      const currentQuestions = [...quizData.questions];
-      const mode = quizData.id && orderModes[quizData.id] ? orderModes[quizData.id] : 'random';
-      
-      setRandomizedQuestions(mode === 'random' ? 
-        currentQuestions.sort(() => Math.random() - 0.5) : 
-        currentQuestions
-      );
-    }
-  };
-
-  const handleQuizActivated = (quizData, orderMode) => {
-    if (!quizData) {
-      setQuizData(null);
-      setRandomizedQuestions([]);
-      return;
-    }
-    
-    setQuizData(quizData);
-    setOrderModes(prev => ({
-      ...prev,
-      [quizData.id]: orderMode || 'random'
-    }));
-    
-    handleRestart();
-  };
-
-  return (
-    <div className="quiz-container">
-      <Header 
-        title={quizData?.title || "Quiz App"}
-        onRestartQuiz={handleRestart}
-        onManageQuizzes={() => setShowManageQuizzes(true)}
-        orderModes={orderModes}
-        setOrderModes={setOrderModes}
-      />
-      {showManageQuizzes && (
-        <ManageQuizzes
-          onClose={() => setShowManageQuizzes(false)}
-          onQuizActivated={handleQuizActivated}
-          quizzes={quizzes}
-          setQuizzes={setQuizzes}
-          orderModes={orderModes}
-          setOrderModes={setOrderModes}
-        />
-      )}
-      {!quizData ? (
-        <div className="empty-state">
-          <p>No questions loaded. Please upload a question file to start.</p>
-          <button 
-            onClick={() => setShowManageQuizzes(true)}
-            className="quiz-button"
-          >
-            Upload Questions
-          </button>
-        </div>
-      ) : !randomizedQuestions.length ? (
-        <div>Loading...</div>
-      ) : isQuizComplete ? (
-        <QuizComplete 
-          correctAnswers={correctAnswers}
-          totalQuestions={randomizedQuestions.length}
-        />
-      ) : (
-        <>
-          <Question 
-            question={randomizedQuestions[currentQuestionIndex]} 
-            onAnswerSubmit={handleAnswerSubmit}
-            selectedAnswer={selectedAnswer}
-            showJustification={showJustification}
-            currentQuestionIndex={currentQuestionIndex}
-            totalQuestions={randomizedQuestions.length}
-          />
-          {showJustification && selectedAnswer !== randomizedQuestions[currentQuestionIndex].correctAnswer && (
-            <button
-              onClick={goToNextQuestion}
-              className="quiz-button"
-            >
-              {currentQuestionIndex === randomizedQuestions.length - 1 ? 'Finish Quiz' : 'Next Question'}
-            </button>
-          )}
-        </>
-      )}
     </div>
   );
 }
