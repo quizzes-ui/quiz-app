@@ -221,22 +221,28 @@ export default function Quiz() {
   }, [quizData, orderModes]);
 
   const goToNextQuestion = useCallback(() => {
-    if (currentQuestionIndex < randomizedQuestions.length - 1) {
+    if (!isInRepeatPhase && currentQuestionIndex < randomizedQuestions.length - 1) {
+      // Still in the initial phase and not at the last question
       setCurrentQuestionIndex(currentQuestionIndex + 1);
-      setSelectedAnswer('');
-      setShowJustification(false);
-    } else if (!isInRepeatPhase && questionsToRepeat.length > 0) {
-      setIsInRepeatPhase(true);
-      setCurrentQuestionIndex(0);
-      setSelectedAnswer('');
-      setShowJustification(false);
+    } else if (!isInRepeatPhase && currentQuestionIndex === randomizedQuestions.length - 1) {
+      // Just finished the initial phase
+      if (questionsToRepeat.length > 0) {
+        // There are questions to repeat
+        setIsInRepeatPhase(true);
+        setCurrentQuestionIndex(0);
+      } else {
+        // No questions to repeat, finish the quiz
+        setIsQuizComplete(true);
+      }
     } else if (isInRepeatPhase && currentQuestionIndex < questionsToRepeat.length - 1) {
+      // In repeat phase and not at the last repeated question
       setCurrentQuestionIndex(currentQuestionIndex + 1);
-      setSelectedAnswer('');
-      setShowJustification(false);
     } else {
+      // Finished all questions including repeats
       setIsQuizComplete(true);
     }
+    setSelectedAnswer('');
+    setShowJustification(false);
   }, [currentQuestionIndex, randomizedQuestions.length, isInRepeatPhase, questionsToRepeat.length]);
 
   useEffect(() => {
@@ -345,15 +351,17 @@ export default function Quiz() {
             onAnswerSubmit={handleAnswerSubmit}
             selectedAnswer={selectedAnswer}
             showJustification={showJustification}
-            currentQuestionIndex={currentQuestionIndex}
+            currentQuestionIndex={isInRepeatPhase ? randomizedQuestions.length + currentQuestionIndex : currentQuestionIndex}
             totalQuestions={randomizedQuestions.length + questionsToRepeat.length}
           />
-          {showJustification && selectedAnswer !== (isInRepeatPhase ? questionsToRepeat[currentQuestionIndex].correctAnswer : randomizedQuestions[currentQuestionIndex].correctAnswer) && (
+          {showJustification && (
             <button
               onClick={goToNextQuestion}
               className="quiz-button"
             >
-              {(isInRepeatPhase && currentQuestionIndex === questionsToRepeat.length - 1) || (!isInRepeatPhase && currentQuestionIndex === randomizedQuestions.length - 1) ? 'Finish Quiz' : 'Next Question'}
+              {(!isInRepeatPhase && currentQuestionIndex === randomizedQuestions.length - 1 && questionsToRepeat.length === 0) || 
+               (isInRepeatPhase && currentQuestionIndex === questionsToRepeat.length - 1) ? 
+                'Finish Quiz' : 'Next Question'}
             </button>
           )}
         </>
