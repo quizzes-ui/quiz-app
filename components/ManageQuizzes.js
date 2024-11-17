@@ -1,80 +1,13 @@
-'use client'
-
-import { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
-import { UploadIcon } from './Icons'
+import React, { useState } from 'react';
+import { UploadIcon, TrashIcon } from './Icons';
 
 const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderModes, setOrderModes }) => {
-  const [uploadError, setUploadError] = useState('')
-  const [dbQuizzes, setDbQuizzes] = useState([])
-  const [dbStatus, setDbStatus] = useState('Fetching quizzes...')
-
-  // Ensure quizzes is always an array
-  const safeQuizzes = Array.isArray(quizzes) ? quizzes : []
-
-  useEffect(() => {
-    const supabaseUrl = "https://kmnayihvsegmrppiuphc.supabase.co"
-    const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttbmF5aWh2c2VnbXJwcGl1cGhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE3NzEzODIsImV4cCI6MjA0NzM0NzM4Mn0.ScJsOY6aH0NEorfkUU29L-2fGlc9QQSRS8f6uHU_5hg"
-
-    const supabase = createClient(supabaseUrl, supabaseAnonKey)
-
-    async function fetchDbQuizzes() {
-      try {
-        const { data, error } = await supabase
-          .from('question-files')
-          .select('id, name, content')
-
-        if (error) throw error
-
-        if (!data || data.length === 0) {
-          setDbStatus('No quizzes found in the database')
-          setDbQuizzes([])
-          return
-        }
-
-        const formattedDbQuizzes = data.map(quiz => {
-          try {
-            const parsedContent = typeof quiz.content === 'string' ? JSON.parse(quiz.content) : quiz.content
-            return {
-              id: quiz.id,
-              title: quiz.name,
-              data: parsedContent,
-              isActive: false,
-              isFromDb: true
-            }
-          } catch (parseError) {
-            console.error(`Error parsing quiz content for quiz ${quiz.id}:`, parseError)
-            return null
-          }
-        }).filter(quiz => quiz !== null)
-
-        setDbQuizzes(formattedDbQuizzes)
-        setDbStatus('Quizzes fetched successfully')
-        
-        // Initialize order modes for new quizzes
-        setOrderModes(prev => {
-          const newModes = { ...prev }
-          formattedDbQuizzes.forEach(quiz => {
-            if (!newModes[quiz.id]) {
-              newModes[quiz.id] = 'random'
-            }
-          })
-          return newModes
-        })
-
-      } catch (error) {
-        console.error('Error fetching DB quizzes:', error)
-        setDbStatus(`Failed to fetch quizzes: ${error.message}`)
-      }
-    }
-
-    fetchDbQuizzes()
-  }, [setOrderModes])
+  const [uploadError, setUploadError] = useState('');
 
   const validateQuestionsFormat = (data) => {
     try {
       if (!data.title || !Array.isArray(data.questions)) {
-        throw new Error('File must contain a title and questions array')
+        throw new Error('File must contain a title and questions array');
       }
 
       data.questions.forEach((question, index) => {
@@ -85,42 +18,42 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
             !question.answerC ||
             !question.correctAnswer ||
             !question.justification) {
-          throw new Error(`Question ${index + 1} is missing required fields`)
+          throw new Error(`Question ${index + 1} is missing required fields`);
         }
 
         if (!['A', 'B', 'C'].includes(question.correctAnswer)) {
-          throw new Error(`Question ${index + 1} has invalid correct answer`)
+          throw new Error(`Question ${index + 1} has invalid correct answer`);
         }
-      })
+      });
 
-      return true
+      return true;
     } catch (error) {
-      setUploadError(error.message)
-      return false
+      setUploadError(error.message);
+      return false;
     }
-  }
+  };
 
   const handleFileUpload = async (event) => {
-    const file = event.target.files[0]
-    setUploadError('')
+    const file = event.target.files[0];
+    setUploadError('');
 
-    if (!file) return
+    if (!file) return;
 
     if (file.type !== 'application/json') {
-      setUploadError('Please upload a JSON file')
-      return
+      setUploadError('Please upload a JSON file');
+      return;
     }
 
     try {
-      const fileContent = await file.text()
-      const parsedData = JSON.parse(fileContent)
+      const fileContent = await file.text();
+      const parsedData = JSON.parse(fileContent);
 
       if (validateQuestionsFormat(parsedData)) {
-        const existingQuiz = safeQuizzes.find(quiz => quiz.title === parsedData.title)
+        const existingQuiz = quizzes.find(quiz => quiz.title === parsedData.title);
         
         if (existingQuiz) {
-          setUploadError('A quiz with this title already exists')
-          return
+          setUploadError('A quiz with this title already exists');
+          return;
         }
 
         const newQuiz = {
@@ -128,106 +61,96 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
           title: parsedData.title,
           data: parsedData,
           isActive: true
-        }
+        };
         
         setQuizzes(prevQuizzes => {
-          const updatedQuizzes = (Array.isArray(prevQuizzes) ? prevQuizzes : []).map(quiz => ({
+          const updatedQuizzes = prevQuizzes.map(quiz => ({
             ...quiz,
             isActive: false
-          }))
-          return [newQuiz, ...updatedQuizzes]
-        })
+          }));
+          return [newQuiz, ...updatedQuizzes];
+        });
 
         // Initialize order mode for new quiz
         setOrderModes(prev => ({
           ...prev,
           [newQuiz.id]: 'random'
-        }))
+        }));
         
-        onQuizActivated(parsedData)
+        onQuizActivated(parsedData);
       }
     } catch (error) {
-      setUploadError('Invalid JSON file format')
+      setUploadError('Invalid JSON file format');
     }
 
-    event.target.value = ''
-  }
+    event.target.value = '';
+  };
 
   const handleDelete = (quizId) => {
     setQuizzes(prevQuizzes => {
-      const updatedQuizzes = (Array.isArray(prevQuizzes) ? prevQuizzes : []).filter(quiz => quiz.id !== quizId)
-      if (safeQuizzes.find(q => q.id === quizId)?.isActive && updatedQuizzes.length > 0) {
-        updatedQuizzes[0].isActive = true
-        onQuizActivated(updatedQuizzes[0].data, orderModes[updatedQuizzes[0].id] || 'random')
+      const updatedQuizzes = prevQuizzes.filter(quiz => quiz.id !== quizId);
+      if (quizzes.find(q => q.id === quizId)?.isActive && updatedQuizzes.length > 0) {
+        updatedQuizzes[0].isActive = true;
+        onQuizActivated(updatedQuizzes[0].data, orderModes[updatedQuizzes[0].id] || 'random');
       } else if (updatedQuizzes.length === 0) {
-        onQuizActivated(null)
+        onQuizActivated(null);
       }
       
       // Update the orderModes state
       setOrderModes(prev => {
-        const newModes = { ...prev }
-        delete newModes[quizId]
-        return newModes
-      })
+        const newModes = { ...prev };
+        delete newModes[quizId];
+        return newModes;
+      });
 
-      return updatedQuizzes
-    })
-  }
+      return updatedQuizzes;
+    });
+  };
 
   const handleDeactivate = () => {
     setQuizzes(prevQuizzes => 
-      (Array.isArray(prevQuizzes) ? prevQuizzes : []).map(quiz => ({
+      prevQuizzes.map(quiz => ({
         ...quiz,
         isActive: false
       }))
-    )
-    setDbQuizzes(prevDbQuizzes =>
-      prevDbQuizzes.map(quiz => ({
-        ...quiz,
-        isActive: false
-      }))
-    )
-    onQuizActivated(null, 'random')
-  }
+    );
+    onQuizActivated(null, 'random');
+  };
 
   const toggleOrderMode = (quizId) => {
-    const newMode = orderModes[quizId] === 'random' ? 'sequential' : 'random'
+    const newMode = orderModes[quizId] === 'random' ? 'sequential' : 'random';
     setOrderModes(prev => ({
       ...prev,
       [quizId]: newMode
-    }))
+    }));
     
-    const activeQuiz = [...safeQuizzes, ...dbQuizzes].find(quiz => quiz.id === quizId && quiz.isActive)
+    const activeQuiz = quizzes.find(quiz => quiz.id === quizId && quiz.isActive);
     if (activeQuiz) {
       const quizWithId = {
         ...activeQuiz.data,
         id: activeQuiz.id
-      }
-      onQuizActivated(quizWithId, newMode)
+      };
+      onQuizActivated(quizWithId, newMode);
     }
-  }
-
+  };
+  
   const handleActivate = (quizId) => {
-    const allQuizzes = [...safeQuizzes, ...dbQuizzes]
-    const updatedQuizzes = allQuizzes.map(quiz => ({
-      ...quiz,
-      isActive: quiz.id === quizId
-    }))
-    
-    const activeQuiz = updatedQuizzes.find(q => q.id === quizId)
-    if (activeQuiz) {
-      const quizWithId = {
-        ...activeQuiz.data,
-        id: activeQuiz.id
+    setQuizzes(prevQuizzes => {
+      const updatedQuizzes = prevQuizzes.map(quiz => ({
+        ...quiz,
+        isActive: quiz.id === quizId
+      }));
+      const activeQuiz = updatedQuizzes.find(q => q.id === quizId);
+      if (activeQuiz) {
+        const quizWithId = {
+          ...activeQuiz.data,
+          id: activeQuiz.id
+        };
+        onQuizActivated(quizWithId, orderModes[quizId] || 'random');
       }
-      onQuizActivated(quizWithId, orderModes[quizId] || 'random')
-    }
-
-    setQuizzes(updatedQuizzes.filter(quiz => !quiz.isFromDb))
-    setDbQuizzes(updatedQuizzes.filter(quiz => quiz.isFromDb))
-  }
-
-  const allQuizzes = [...safeQuizzes, ...dbQuizzes]
+      return updatedQuizzes;
+    });
+  };
 
   return (
     <div className="manage-quizzes-overlay">
@@ -238,8 +161,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
         </div>
 
         <div className="quizzes-list">
-          <p className="mb-2">Database Status: <span className={dbStatus.includes('success') ? 'text-green-600' : 'text-red-600'}>{dbStatus}</span></p>
-          {allQuizzes.length === 0 ? (
+          {quizzes.length === 0 ? (
             <p className="no-quizzes-message">No question files are loaded yet.</p>
           ) : (
             <table>
@@ -252,7 +174,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
                 </tr>
               </thead>
               <tbody>
-                {allQuizzes.map(quiz => (
+                {quizzes.map(quiz => (
                   <tr key={quiz.id} className={quiz.isActive ? 'active-row' : ''}>
                     <td className="quiz-title-cell">{quiz.title}</td>
                     <td className="questions-count-cell">{quiz.data.questions.length}</td>
@@ -280,14 +202,13 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
                           Inactive
                         </button>
                       )}
-                      {!quiz.isFromDb && (
-                        <button 
-                          onClick={() => handleDelete(quiz.id)}
-                          className="delete-button-icon"
-                        >
-                          ×
-                        </button>
-                      )}
+                      <button 
+                        onClick={() => handleDelete(quiz.id)}
+                        className="delete-button-icon"
+                        title="Delete quiz"
+                      >
+                        <TrashIcon />
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -315,9 +236,10 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
             </button>
           </div>
         </div>
+
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ManageQuizzes
+export default ManageQuizzes;
