@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useLocalStorage } from '../hooks/useLocalStorage'
 import ManageQuizzes from './ManageQuizzes'
 
 function QuizComplete({ correctAnswers, totalQuestions, wrongAnswers }) {
@@ -65,9 +64,21 @@ export default function Quiz() {
   const [showManageQuizzes, setShowManageQuizzes] = useState(false)
   const [randomizedQuestions, setRandomizedQuestions] = useState([])
   const [correctAnswers, setCorrectAnswers] = useState(0)
-  const [quizzes, setQuizzes] = useLocalStorage(LOCAL_STORAGE_KEY, [])
+  const [quizzes, setQuizzes] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const savedQuizzes = localStorage.getItem(LOCAL_STORAGE_KEY)
+      return savedQuizzes ? JSON.parse(savedQuizzes) : []
+    }
+    return []
+  })
   const [orderModes, setOrderModes] = useState({})
   const [wrongAnswers, setWrongAnswers] = useState([])
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(quizzes))
+    }
+  }, [quizzes])
 
   useEffect(() => {
     const modes = {}
