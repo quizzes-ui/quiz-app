@@ -208,8 +208,9 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
               <button 
                 onClick={() => handleDelete(quiz.id)}
                 className="delete-button-icon"
+                title="Delete quiz"
               >
-                Delete
+                <TrashIcon />
               </button>
             </td>
           </tr>
