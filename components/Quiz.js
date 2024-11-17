@@ -309,7 +309,7 @@ export default function Quiz() {
             currentQuestionIndex={isInRepeatPhase ? initialQuestionCount + currentQuestionIndex : currentQuestionIndex}
             initialQuestionCount={initialQuestionCount}
           />
-          {showJustification && (
+          {showJustification && selectedAnswer !== (isInRepeatPhase ? questionsToRepeat[currentQuestionIndex].correctAnswer : randomizedQuestions[currentQuestionIndex].correctAnswer) && (
             <button
               onClick={goToNextQuestion}
               className="quiz-button"
