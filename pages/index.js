@@ -6,7 +6,7 @@ const Home = () => {
     <div>
       <TestDB />
       <Quiz />
-      <div className="version-tag">Version 3.1</div>
+      <div className="version-tag">Version 3.3</div>
     </div>
     
   );
