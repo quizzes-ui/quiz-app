@@ -1,5 +1,6 @@
 import React from 'react';
 import Quiz from '../components/Quiz';
+import Quiz from '../components/TestDB';
 
 const Home = () => {
   return (
