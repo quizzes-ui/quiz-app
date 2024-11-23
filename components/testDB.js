@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 
-export default function TestDB() {
+const TestDB = () => {
   const [dbStatus, setDbStatus] = useState('Checking connection...')
 
   useEffect(() => {
@@ -35,4 +35,6 @@ export default function TestDB() {
       <p className="mb-2">Status: <span className={dbStatus.includes('success') ? 'text-green-600' : 'text-red-600'}>{dbStatus}</span></p>
     </div>
   )
-}
+};
+
+export default TestDB;
