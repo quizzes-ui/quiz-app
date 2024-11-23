@@ -1,11 +1,11 @@
 import React from 'react';
 import Quiz from '../components/Quiz';
-import TestDB from '../components/TestDB';
+import testDB from '../components/TestDB';
 
 const Home = () => {
   return (
     <div>
-      <TestDB />
+      <testDB />
       <Quiz />
       <div className="version-tag">Version 3.4</div>
     </div>
