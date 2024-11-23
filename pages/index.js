@@ -6,7 +6,7 @@ const Home = () => {
   return (
     <div>
       <testDB />
-      <Quiz />
+      //<Quiz />
       <div className="version-tag">Version 3.4</div>
     </div>
     
