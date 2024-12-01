@@ -176,7 +176,6 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
                 <tr>
                   <th>Quiz Title</th>
                   <th className="questions-count-header">Questions</th>
-                  <th className="actions-header">Actions</th>
                 </tr>
               </thead>
               <tbody>
