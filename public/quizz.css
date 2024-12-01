@@ -629,3 +629,13 @@ body {
   background-color: #2563eb;
 }
 
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem; /* Increased from 0.5rem to 1rem */
+}
+
+.action-button {
+  flex: 0 0 auto; /* Add this new class */
+}

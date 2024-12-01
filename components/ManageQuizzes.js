@@ -181,7 +181,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
           </div>
         </div>
 
-        <div className="quizzes-list">
+  <div className="quizzes-list">
   {quizzes.length > 0 ? (
     <table>
       <thead>
@@ -227,7 +227,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
   ) : (
     <p className="no-quizzes-message">No quizzes available. Upload a quiz to get started!</p>
   )}
-        </div>
+  </div>
 
       </div>
     </div>
