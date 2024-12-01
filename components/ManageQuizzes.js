@@ -161,6 +161,25 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
           <h2>Manage Quizzes</h2>
           <button onClick={onClose} className="close-button">×</button>
         </div>
+        <div className="upload-section">
+          {uploadError && <p className="upload-error">{uploadError}</p>}
+          <div className="upload-buttons-container">
+            <input
+              type="file"
+              accept=".json"
+              onChange={handleFileUpload}
+              id="quiz-file-input"
+              className="file-input"
+            />
+            <label htmlFor="quiz-file-input" className="upload-button upload-orange">
+              <UploadIcon />
+              <span>Upload New Questions</span>
+            </label>
+            <button onClick={onClose} className="upload-button upload-green">
+              Start Quiz
+            </button>
+          </div>
+        </div>
 
         <div className="quizzes-list">
   {quizzes.length === 0 ? (
@@ -222,26 +241,6 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
     </table>
   )}
 </div>
-
-        <div className="upload-section">
-          {uploadError && <p className="upload-error">{uploadError}</p>}
-          <div className="upload-buttons-container">
-            <input
-              type="file"
-              accept=".json"
-              onChange={handleFileUpload}
-              id="quiz-file-input"
-              className="file-input"
-            />
-            <label htmlFor="quiz-file-input" className="upload-button upload-orange">
-              <UploadIcon />
-              <span>Upload New Questions</span>
-            </label>
-            <button onClick={onClose} className="upload-button upload-green">
-              Start Quiz
-            </button>
-          </div>
-        </div>
 
       </div>
     </div>
