@@ -176,6 +176,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
                 <tr>
                   <th>Quiz Title</th>
                   <th className="questions-count-header">Questions</th>
+                  <th className="actions-header"></th>
                 </tr>
               </thead>
               <tbody>
@@ -184,20 +185,26 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
                     <td className="quiz-title-cell">{quiz.title}</td>
                     <td className="questions-count-cell">{quiz.data.questions.length}</td>
                     <td className="actions-cell">
+
                       <div className="action-buttons">
-                        <button 
-                          onClick={() => quiz.isActive ? handleDeactivate() : handleActivate(quiz.id)}
-                          className={`activate-button ${quiz.isActive ? 'active' : 'inactive'}`}
-                        >
-                          {quiz.isActive ? 'Active' : 'Inactive'}
-                        </button>
-                        <button 
+                      
+                      <button 
                           onClick={() => toggleOrderMode(quiz.id)}
                           className={`order-button ${orderModes[quiz.id]}`}
                           disabled={!quiz.isActive}
                         >
                           {orderModes[quiz.id] === 'random' ? 'Random' : 'Sequential'}
                         </button>
+
+                        <button 
+                          onClick={() => quiz.isActive ? handleDeactivate() : handleActivate(quiz.id)}
+                          className={`activate-button ${quiz.isActive ? 'active' : 'inactive'}`}
+                        >
+                          {quiz.isActive ? 'Active' : 'Inactive'}
+                        </button>
+
+                        
+
                         <button 
                           onClick={() => handleDelete(quiz.id)}
                           className="delete-button-icon"
