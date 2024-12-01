@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TrashIcon } from './Icons';
+import { TrashIcon, UploadIcon } from './Icons';
 
 const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderModes, setOrderModes }) => {
   const [uploadError, setUploadError] = useState('');
@@ -123,7 +123,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
       }))
     );
     const activatedQuiz = quizzes.find(quiz => quiz.id === quizId);
-    onQuizActivated(activatedQuiz.data, orderModes[quizId] || 'random');
+    onQuizActivated(activatedQuiz.data, orderModes[quiz.id] || 'random');
   };
 
   const toggleOrderMode = (quizId) => {
@@ -133,7 +133,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
     }));
     const updatedQuiz = quizzes.find(quiz => quiz.id === quizId);
     if (updatedQuiz.isActive) {
-      onQuizActivated(updatedQuiz.data, orderModes[quizId] === 'random' ? 'sequential' : 'random');
+      onQuizActivated(updatedQuiz.data, orderModes[quiz.id] === 'random' ? 'sequential' : 'random');
     }
   };
 
