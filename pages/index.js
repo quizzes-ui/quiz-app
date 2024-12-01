@@ -7,7 +7,7 @@ const Home = () => {
     <div>
       <testDB />
       //<Quiz />
-      <div className="version-tag">Version 3.4</div>
+      <div className="version-tag">Version 3.5</div>
     </div>
     
   );
