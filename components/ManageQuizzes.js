@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UploadIcon, TrashIcon } from './Icons';
+import { TrashIcon } from './Icons';
 
 const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderModes, setOrderModes }) => {
   const [uploadError, setUploadError] = useState('');
@@ -71,7 +71,6 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
           return [newQuiz, ...updatedQuizzes];
         });
 
-        // Initialize order mode for new quiz
         setOrderModes(prev => ({
           ...prev,
           [newQuiz.id]: 'random'
@@ -96,7 +95,6 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
         onQuizActivated(null);
       }
       
-      // Update the orderModes state
       setOrderModes(prev => {
         const newModes = { ...prev };
         delete newModes[quizId];
@@ -117,41 +115,26 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
     onQuizActivated(null, 'random');
   };
 
-  const toggleOrderMode = (quizId) => {
-    const quiz = quizzes.find(q => q.id === quizId);
-    if (!quiz || !quiz.isActive) return; // Don't toggle if quiz is not active
-  
-    const newMode = orderModes[quizId] === 'random' ? 'sequential' : 'random';
-    setOrderModes(prev => ({
-      ...prev,
-      [quizId]: newMode
-    }));
-    
-    if (quiz.isActive) {
-      const quizWithId = {
-        ...quiz.data,
-        id: quiz.id
-      };
-      onQuizActivated(quizWithId, newMode);
-    }
-  };
-  
   const handleActivate = (quizId) => {
-    setQuizzes(prevQuizzes => {
-      const updatedQuizzes = prevQuizzes.map(quiz => ({
+    setQuizzes(prevQuizzes => 
+      prevQuizzes.map(quiz => ({
         ...quiz,
         isActive: quiz.id === quizId
-      }));
-      const activeQuiz = updatedQuizzes.find(q => q.id === quizId);
-      if (activeQuiz) {
-        const quizWithId = {
-          ...activeQuiz.data,
-          id: activeQuiz.id
-        };
-        onQuizActivated(quizWithId, orderModes[quizId] || 'random');
-      }
-      return updatedQuizzes;
-    });
+      }))
+    );
+    const activatedQuiz = quizzes.find(quiz => quiz.id === quizId);
+    onQuizActivated(activatedQuiz.data, orderModes[quizId] || 'random');
+  };
+
+  const toggleOrderMode = (quizId) => {
+    setOrderModes(prev => ({
+      ...prev,
+      [quizId]: prev[quizId] === 'random' ? 'sequential' : 'random'
+    }));
+    const updatedQuiz = quizzes.find(quiz => quiz.id === quizId);
+    if (updatedQuiz.isActive) {
+      onQuizActivated(updatedQuiz.data, orderModes[quizId] === 'random' ? 'sequential' : 'random');
+    }
   };
 
   return (
@@ -159,8 +142,11 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
       <div className="manage-quizzes-container">
         <div className="manage-quizzes-header">
           <h2>Manage Quizzes</h2>
-          <button onClick={onClose} className="close-button">×</button>
+          <button className="close-button" onClick={onClose}>
+            &times;
+          </button>
         </div>
+
         <div className="upload-section">
           {uploadError && <p className="upload-error">{uploadError}</p>}
           <div className="upload-buttons-container">
@@ -181,57 +167,57 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
           </div>
         </div>
 
-  <div className="quizzes-list">
-  {quizzes.length > 0 ? (
-    <table>
-      <thead>
-        <tr>
-          <th className="quiz-title-header">Quiz Title</th>
-          <th className="questions-count-header">Questions</th>
-          <th className="actions-header">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {quizzes.map((quiz) => (
-          <tr key={quiz.id} className={quiz.isActive ? 'active-row' : ''}>
-            <td className="quiz-title-cell">{quiz.title}</td>
-            <td className="questions-count-cell">{quiz.data.questions.length}</td>
-            <td className="actions-cell">
-              <div className="action-buttons">
-                <button 
-                  onClick={() => quiz.isActive ? handleDeactivate() : handleActivate(quiz.id)}
-                  className={`activate-button ${quiz.isActive ? 'active' : 'inactive'}`}
-                >
-                  {quiz.isActive ? 'Active' : 'Inactive'}
-                </button>
-                <button 
-                  onClick={() => toggleOrderMode(quiz.id)}
-                  className={`order-button ${orderModes[quiz.id]}`}
-                  disabled={!quiz.isActive}
-                >
-                  {orderModes[quiz.id] === 'random' ? 'Random' : 'Sequential'}
-                </button>
-                <button 
-                  onClick={() => handleDelete(quiz.id)}
-                  className="delete-button-icon"
-                  title="Delete quiz"
-                >
-                  <TrashIcon />
-                </button>
-              </div>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  ) : (
-    <p className="no-quizzes-message">No quizzes available. Upload a quiz to get started!</p>
-  )}
-  </div>
-
+        <div className="quizzes-list">
+          {quizzes.length === 0 ? (
+            <p className="no-quizzes-message">No question files are loaded yet.</p>
+          ) : (
+            <table>
+              <thead>
+                <tr>
+                  <th>Quiz Title</th>
+                  <th className="questions-count-header">Questions</th>
+                  <th className="actions-header">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {quizzes.map(quiz => (
+                  <tr key={quiz.id} className={quiz.isActive ? 'active-row' : ''}>
+                    <td className="quiz-title-cell">{quiz.title}</td>
+                    <td className="questions-count-cell">{quiz.data.questions.length}</td>
+                    <td className="actions-cell">
+                      <div className="action-buttons">
+                        <button 
+                          onClick={() => quiz.isActive ? handleDeactivate() : handleActivate(quiz.id)}
+                          className={`activate-button ${quiz.isActive ? 'active' : 'inactive'}`}
+                        >
+                          {quiz.isActive ? 'Active' : 'Inactive'}
+                        </button>
+                        <button 
+                          onClick={() => toggleOrderMode(quiz.id)}
+                          className={`order-button ${orderModes[quiz.id]}`}
+                          disabled={!quiz.isActive}
+                        >
+                          {orderModes[quiz.id] === 'random' ? 'Random' : 'Sequential'}
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(quiz.id)}
+                          className="delete-button-icon"
+                          title="Delete quiz"
+                        >
+                          <TrashIcon />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
     </div>
   );
 };
 
 export default ManageQuizzes;
+
