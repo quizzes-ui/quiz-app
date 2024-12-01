@@ -182,65 +182,52 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
         </div>
 
         <div className="quizzes-list">
-  {quizzes.length === 0 ? (
-    <p className="no-quizzes-message">No question files are loaded yet.</p>
-  ) : (
+  {quizzes.length > 0 ? (
     <table>
       <thead>
         <tr>
-          <th>Quiz Title</th>
+          <th className="quiz-title-header">Quiz Title</th>
           <th className="questions-count-header">Questions</th>
-          
+          <th className="actions-header">Actions</th>
         </tr>
       </thead>
       <tbody>
-        {quizzes.map(quiz => (
+        {quizzes.map((quiz) => (
           <tr key={quiz.id} className={quiz.isActive ? 'active-row' : ''}>
             <td className="quiz-title-cell">{quiz.title}</td>
             <td className="questions-count-cell">{quiz.data.questions.length}</td>
-            
-           
-            <td className="quiz-actions-cell">
-              {quiz.isActive ? (
+            <td className="actions-cell">
+              <div className="action-buttons">
                 <button 
-                  onClick={handleDeactivate}
-                  className="activate-button active"
+                  onClick={() => quiz.isActive ? handleDeactivate() : handleActivate(quiz.id)}
+                  className={`activate-button ${quiz.isActive ? 'active' : 'inactive'}`}
                 >
-                  Active
+                  {quiz.isActive ? 'Active' : 'Inactive'}
                 </button>
-              ) : (
                 <button 
-                  onClick={() => handleActivate(quiz.id)}
-                  className="activate-button inactive"
+                  onClick={() => toggleOrderMode(quiz.id)}
+                  className={`order-button ${orderModes[quiz.id]}`}
+                  disabled={!quiz.isActive}
                 >
-                  Inactive
+                  {orderModes[quiz.id] === 'random' ? 'Random' : 'Sequential'}
                 </button>
-              )}
-               </td>
-               <td className="order-cell">
-              <button 
-                onClick={() => toggleOrderMode(quiz.id)}
-                className={`order-button ${orderModes[quiz.id]}`}
-                disabled={!quiz.isActive}
-              >
-                {orderModes[quiz.id] === 'random' ? 'Random' : 'Sequential'}
-              </button>
-            </td>
-               <td>
-              <button 
-                onClick={() => handleDelete(quiz.id)}
-                className="delete-button-icon"
-                title="Delete quiz"
-              >
-                <TrashIcon />
-              </button>
+                <button 
+                  onClick={() => handleDelete(quiz.id)}
+                  className="delete-button-icon"
+                  title="Delete quiz"
+                >
+                  <TrashIcon />
+                </button>
+              </div>
             </td>
           </tr>
         ))}
       </tbody>
     </table>
+  ) : (
+    <p className="no-quizzes-message">No quizzes available. Upload a quiz to get started!</p>
   )}
-</div>
+        </div>
 
       </div>
     </div>
