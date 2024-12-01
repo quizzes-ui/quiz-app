@@ -3,6 +3,14 @@ body {
   margin: 0;
 }
 
+/* Existing styles */
+.quiz-title-cell {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* Base container styles */
 .quiz-container {
   max-width: 800px;
@@ -424,14 +432,6 @@ body {
   border-bottom: 1px solid #e5e7eb;
 }
 
-/* New style for truncating long quiz titles */
-.quiz-title-cell {
-  max-width: 200px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .quiz-actions-cell {
   display: flex;
   justify-content: flex-end;
@@ -675,4 +675,50 @@ body {
 .order-button:disabled {
   opacity: 0;
   cursor: not-allowed;
+}
+
+/* New styles */
+.quizzes-list table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.quizzes-list th,
+.quizzes-list td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.quiz-title-cell {
+  width: 40%;
+}
+
+.questions-count-cell {
+  width: 15%;
+  text-align: center;
+}
+
+.quiz-actions-cell {
+  width: 15%;
+  text-align: right;
+}
+
+.order-cell {
+  width: 15%;
+  text-align: right;
+}
+
+.delete-cell {
+  width: 15%;
+  text-align: center;
+}
+
+.activate-button,
+.order-button {
+  min-width: 80px;
+}
+
+.delete-button-icon {
+  display: flex;
+  justify-content: center;
 }
