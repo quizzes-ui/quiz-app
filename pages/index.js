@@ -21,6 +21,7 @@ const Home = () => {
   return (
     <div>
       <Quiz />
+      
       <div className="version-tag">Version 3.5</div>
       {url && <p>File uploaded: <a href={url} target="_blank" rel="noopener noreferrer">{url}</a></p>}
     </div>
