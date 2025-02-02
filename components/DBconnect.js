@@ -7,7 +7,7 @@ const DBconnect = () => {
     const [error, setError] = useState(null);
     const [debugInfo, setDebugInfo] = useState(null);
 
-    const pb = new PocketBase('https://quiz-db.pikapod.net');
+    const pb = new PocketBase(process.env.NEXT_PUBLIC_POCKETBASE_URL);
 
     useEffect(() => {
         fetchQuizzes();
@@ -15,9 +15,23 @@ const DBconnect = () => {
 
     const fetchQuizzes = async () => {
         try {
-            console.log('Attempting to fetch quizzes...');
+            console.log('Attempting to authenticate and fetch quizzes...');
             
-            // First, try to list available collections
+            // First authenticate
+            try {
+                const authData = await pb.admins.authWithPassword(
+                    process.env.POCKETBASE_ADMIN_EMAIL,
+                    process.env.POCKETBASE_ADMIN_PASSWORD
+                );
+                console.log('Authentication successful');
+                setDebugInfo(prev => ({ ...prev, authStatus: 'success' }));
+            } catch (authErr) {
+                console.error('Authentication failed:', authErr);
+                setDebugInfo(prev => ({ ...prev, authError: authErr.message }));
+                throw new Error('Authentication failed: ' + authErr.message);
+            }
+
+            // Then fetch collections
             try {
                 const collections = await pb.collections.getList(1, 50);
                 console.log('Available collections:', collections);
@@ -27,7 +41,7 @@ const DBconnect = () => {
                 setDebugInfo(prev => ({ ...prev, collectionsError: collErr.message }));
             }
 
-            // Try to fetch quizzes
+            // Finally fetch quizzes
             const records = await pb.collection('quizzes').getFullList({
                 sort: '-created',
             });
