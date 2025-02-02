@@ -1,6 +1,7 @@
 {
   "name": "quiz-app",
   "version": "1.0.0",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
@@ -10,9 +11,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "@supabase/supabase-js": "^2.46.1",
+    "@vercel/blob": "^1.0.0",
     "@vercel/edge-config": "^1.4.0",
     "express": "^4.21.1",
     "next": "^15.0.3",
