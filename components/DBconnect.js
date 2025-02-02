@@ -5,6 +5,7 @@ const DBconnect = () => {
     const [quizzes, setQuizzes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [debugInfo, setDebugInfo] = useState(null);
 
     const pb = new PocketBase('https://quiz-db.pikapod.net');
 
@@ -14,22 +15,47 @@ const DBconnect = () => {
 
     const fetchQuizzes = async () => {
         try {
-            // Fetch all quizzes from the database
+            console.log('Attempting to fetch quizzes...');
+            
+            // First, try to list available collections
+            try {
+                const collections = await pb.collections.getList(1, 50);
+                console.log('Available collections:', collections);
+                setDebugInfo(prev => ({ ...prev, collections }));
+            } catch (collErr) {
+                console.error('Error fetching collections:', collErr);
+                setDebugInfo(prev => ({ ...prev, collectionsError: collErr.message }));
+            }
+
+            // Try to fetch quizzes
             const records = await pb.collection('quizzes').getFullList({
-                sort: '-created', // Sort by creation date, newest first
+                sort: '-created',
             });
             
+            console.log('Fetched quizzes:', records);
             setQuizzes(records);
+            setDebugInfo(prev => ({ ...prev, quizzes: records }));
             setLoading(false);
         } catch (err) {
-            console.error('Error fetching quizzes:', err);
-            setError('Failed to load quizzes');
+            console.error('Error details:', err);
+            setError(err.message || 'Failed to load quizzes');
+            setDebugInfo(prev => ({ ...prev, error: err }));
             setLoading(false);
         }
     };
 
     if (loading) return <div>Loading quizzes...</div>;
-    if (error) return <div>Error: {error}</div>;
+    if (error) return (
+        <div>
+            <div>Error: {error}</div>
+            {debugInfo && (
+                <div style={{ marginTop: '20px', padding: '10px', background: '#f5f5f5', borderRadius: '4px' }}>
+                    <h4>Debug Information:</h4>
+                    <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
+                </div>
+            )}
+        </div>
+    );
 
     return (
         <div>
