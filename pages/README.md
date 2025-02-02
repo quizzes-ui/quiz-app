@@ -1,3 +1,0 @@
-# Quiz-Application
-# app
-# app

@@ -41,21 +41,6 @@ export default function Home() {
   return (
     <div>
       <Quiz />
-      <div className="version-tag">Version 3.5</div>
-
-      <form onSubmit={handleUpload}>
-        <input name="file" ref={inputFileRef} type="file" required />
-        <button type="submit" disabled={loading}>
-          {loading ? "Uploading..." : "Upload File"}
-        </button>
-      </form>
-
-      {error && <p style={{ color: "red" }}>Error: {error}</p>}
-      {blobUrl && (
-        <p>
-          File uploaded: <a href={blobUrl} target="_blank" rel="noopener noreferrer">{blobUrl}</a>
-        </p>
-      )}
     </div>
   );
 }
