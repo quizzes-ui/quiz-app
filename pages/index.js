@@ -1,39 +1,48 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Quiz from '../components/Quiz';
 
 const Home = () => {
   const [url, setUrl] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const uploadFile = async () => {
-      try {
-        const response = await fetch('/api/upload', { method: 'POST' });
+  const testBlobUpload = async () => {
+    setLoading(true);
+    setError(null);
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
+    try {
+      const response = await fetch('/api/upload', { method: 'POST' });
 
-        const data = await response.json();
-
-        if (data.url) {
-          setUrl(data.url);
-        } else {
-          console.error('Upload failed: No URL returned from API');
-        }
-      } catch (error) {
-        console.error('File upload error:', error);
+      if (!response.ok) {
+        throw new Error(`Upload failed with status ${response.status}`);
       }
-    };
 
-    uploadFile();
-  }, []);
+      const data = await response.json();
+
+      if (data.url) {
+        setUrl(data.url);
+      } else {
+        throw new Error('No URL returned from API');
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div>
       <Quiz />
-
       <div className="version-tag">Version 3.5</div>
-      
+
+      {/* Button to trigger the blob upload */}
+      <button onClick={testBlobUpload} disabled={loading}>
+        {loading ? "Uploading..." : "Test Blob Upload"}
+      </button>
+
+      {/* Display results */}
+      {error && <p style={{ color: "red" }}>Error: {error}</p>}
       {url && (
         <p>
           File uploaded: <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>
