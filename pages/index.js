@@ -1,12 +1,12 @@
 import React from 'react';
 import Quiz from '../components/Quiz';
-import DBconnect from '../components/DBconnect';
+
 
 const Home = () => {
   return (
     <div>
-      <DBconnect />
-      //<Quiz />
+      
+      <Quiz />
       <div className="version-tag">Version 3.5</div>
     </div>
   );
