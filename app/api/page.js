@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import Quiz from '../components/Quiz';
+import Quiz from '../../components/Quiz';
 
 export default function Home() {
   const inputFileRef = useRef(null);
