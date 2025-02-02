@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TrashIcon, UploadIcon } from './Icons';
-import fs from 'fs';
-import path from 'path';
+import quiz1 from '../data/quiz1.json';
+import quiz2 from '../data/quiz2.json';
 
 const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderModes, setOrderModes }) => {
   const [uploadError, setUploadError] = useState('');
@@ -140,38 +140,16 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
   };
 
   useEffect(() => {
-    const loadQuizzesFromData = () => {
-      const dataDir = path.join(__dirname, '../data');
-      fs.readdir(dataDir, (err, files) => {
-        if (err) {
-          console.error('Error reading data directory:', err);
-          return;
+    const loadStaticQuizzes = () => {
+      const staticQuizzes = [quiz1, quiz2];
+      staticQuizzes.forEach((quiz) => {
+        if (validateQuestionsFormat(quiz)) {
+          setQuizzes((prevQuizzes) => [...prevQuizzes, quiz]);
         }
-
-        files.forEach((file) => {
-          if (path.extname(file) === '.json') {
-            const filePath = path.join(dataDir, file);
-            fs.readFile(filePath, 'utf8', (err, content) => {
-              if (err) {
-                console.error('Error reading file:', file, err);
-                return;
-              }
-
-              try {
-                const parsedData = JSON.parse(content);
-                if (validateQuestionsFormat(parsedData)) {
-                  setQuizzes((prevQuizzes) => [...prevQuizzes, parsedData]);
-                }
-              } catch (parseError) {
-                console.error('Error parsing JSON file:', file, parseError);
-              }
-            });
-          }
-        });
       });
     };
 
-    loadQuizzesFromData();
+    loadStaticQuizzes();
   }, []);
 
   return (
