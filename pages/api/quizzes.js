@@ -5,6 +5,8 @@ export default async function handler(req, res) {
 
     try {
         // Authenticate as admin
+        console.log('Admin Email:', process.env.POCKETBASE_ADMIN_EMAIL ? 'Set' : 'Not Set');
+        console.log('Admin Password:', process.env.POCKETBASE_ADMIN_PASSWORD ? 'Set' : 'Not Set');
         const authData = await pb.admins.authWithPassword(
             process.env.POCKETBASE_ADMIN_EMAIL,
             process.env.POCKETBASE_ADMIN_PASSWORD
