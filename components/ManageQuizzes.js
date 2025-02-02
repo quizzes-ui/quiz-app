@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TrashIcon, UploadIcon } from './Icons';
+import fs from 'fs';
+import path from 'path';
 
 const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderModes, setOrderModes }) => {
   const [uploadError, setUploadError] = useState('');
@@ -137,6 +139,41 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
     }
   };
 
+  useEffect(() => {
+    const loadQuizzesFromData = () => {
+      const dataDir = path.join(__dirname, '../data');
+      fs.readdir(dataDir, (err, files) => {
+        if (err) {
+          console.error('Error reading data directory:', err);
+          return;
+        }
+
+        files.forEach((file) => {
+          if (path.extname(file) === '.json') {
+            const filePath = path.join(dataDir, file);
+            fs.readFile(filePath, 'utf8', (err, content) => {
+              if (err) {
+                console.error('Error reading file:', file, err);
+                return;
+              }
+
+              try {
+                const parsedData = JSON.parse(content);
+                if (validateQuestionsFormat(parsedData)) {
+                  setQuizzes((prevQuizzes) => [...prevQuizzes, parsedData]);
+                }
+              } catch (parseError) {
+                console.error('Error parsing JSON file:', file, parseError);
+              }
+            });
+          }
+        });
+      });
+    };
+
+    loadQuizzesFromData();
+  }, []);
+
   return (
     <div className="manage-quizzes-overlay">
       <div className="manage-quizzes-container">
@@ -219,4 +256,3 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
 };
 
 export default ManageQuizzes;
-

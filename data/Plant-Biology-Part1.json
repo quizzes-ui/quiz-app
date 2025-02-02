@@ -1,0 +1,185 @@
+{
+  "title": "Plant Biology Quiz - Combined",
+  "questions": [
+    {
+      "id": "1",
+      "texte": "What is the main function of chlorophyll in photosynthesis?",
+      "answerA": "To absorb light energy",
+      "answerB": "To transport water",
+      "answerC": "To store sugar",
+      "correctAnswer": "A",
+      "justification": "As we have seen, the chemical reaction for photosynthesis requires light (absorbed by chlorophyll in the chloroplasts of leaf cells)..."
+    },
+    {
+      "id": "2",
+      "texte": "How does carbon dioxide enter plant leaves?",
+      "answerA": "Through xylem",
+      "answerB": "Through stomata",
+      "answerC": "Through phloem",
+      "correctAnswer": "B",
+      "justification": "...carbon dioxide (which enters leaves through holes called stomata)..."
+    },
+    {
+      "id": "3",
+      "texte": "What structures in plant roots help maximize absorption?",
+      "answerA": "Stomata",
+      "answerB": "Root hairs",
+      "answerC": "Xylem",
+      "correctAnswer": "B",
+      "justification": "The root structure of a plant branches in a fractal pattern culminating in tiny 'hairs'... This maximizes the surface area of the roots and facilitates absorption..."
+    },
+    {
+      "id": "4",
+      "texte": "What is the primary function of xylem?",
+      "answerA": "Transporting water",
+      "answerB": "Transporting sugar",
+      "answerC": "Absorbing light",
+      "correctAnswer": "A",
+      "justification": "...vascular plants have stems with tissues called xylem (which transports water)..."
+    },
+    {
+      "id": "5",
+      "texte": "What allows water to move up the xylem against gravity?",
+      "answerA": "Capillary action",
+      "answerB": "Photosynthesis",
+      "answerC": "Root pressure",
+      "correctAnswer": "A",
+      "justification": "Water can travel up the xylem 'for free', even against the force of gravity, by way of a phenomenon called 'capillary action'."
+    },
+    {
+      "id": "6",
+      "texte": "What is the role of stomata in plant leaves?",
+      "answerA": "To absorb nutrients",
+      "answerB": "To allow gas exchange",
+      "answerC": "To transport water",
+      "correctAnswer": "B",
+      "justification": "...carbon dioxide (which enters leaves through holes called stomata)..."
+    },
+    {
+      "id": "7",
+      "texte": "Which plant structure is responsible for transporting sugar?",
+      "answerA": "Xylem",
+      "answerB": "Phloem",
+      "answerC": "Stomata",
+      "correctAnswer": "B",
+      "justification": "...vascular plants have stems with tissues called xylem (which transports water) and phloem (which transports sugar and other organic molecules)."
+    },
+    {
+      "id": "8",
+      "texte": "Why do non-vascular plants remain small?",
+      "answerA": "They lack chlorophyll",
+      "answerB": "They do not have a vascular system for transport",
+      "answerC": "They require too much sunlight",
+      "correctAnswer": "B",
+      "justification": "Simple primitive plants such as mosses ('non-vascular plants') are small enough that it is not difficult to get these various resources where they need to go."
+    },
+    {
+      "id": "9",
+      "texte": "What property of water allows capillary action to occur?",
+      "answerA": "Its polarity",
+      "answerB": "Its density",
+      "answerC": "Its high boiling point",
+      "correctAnswer": "A",
+      "justification": "Water molecules are very 'sticky' due to their polar nature..."
+    },
+    {
+      "id": "10",
+      "texte": "Which polymer is the primary component of wood?",
+      "answerA": "Starch",
+      "answerB": "Cellulose",
+      "answerC": "Glucose",
+      "correctAnswer": "B",
+      "justification": "Cellulose is much 'tougher' than starch and is used primarily as a building material, making up wood and the cell walls of plant cells."
+    },
+    {
+      "id": "11",
+      "texte": "What is the function of mitochondria in plant cells?",
+      "answerA": "Producing ATP for energy",
+      "answerB": "Storing water",
+      "answerC": "Transporting nutrients",
+      "correctAnswer": "A",
+      "justification": "Some of that sugar may be consumed immediately for ATP in the mitochondria."
+    },
+    {
+      "id": "12",
+      "texte": "What does the phloem transport?",
+      "answerA": "Water",
+      "answerB": "Sugar",
+      "answerC": "Carbon dioxide",
+      "correctAnswer": "B",
+      "justification": "...vascular plants have stems with tissues called xylem (which transports water) and phloem (which transports sugar and other organic molecules)."
+    },
+    {
+      "id": "13",
+      "texte": "Which structure helps plants absorb minerals from the soil?",
+      "answerA": "Root hairs",
+      "answerB": "Xylem",
+      "answerC": "Stomata",
+      "correctAnswer": "A",
+      "justification": "The root structure of a plant branches in a fractal pattern culminating in tiny 'hairs'... This maximizes the surface area of the roots and facilitates absorption."
+    },
+    {
+      "id": "14",
+      "texte": "What is the main role of starch in plants?",
+      "answerA": "Providing structural support",
+      "answerB": "Storing energy",
+      "answerC": "Absorbing sunlight",
+      "correctAnswer": "B",
+      "justification": "Leftover sugar molecules may be chained together into a macromolecule starch to save for later."
+    },
+    {
+      "id": "15",
+      "texte": "How do vascular plants differ from non-vascular plants?",
+      "answerA": "They have a transport system for water and nutrients",
+      "answerB": "They perform photosynthesis",
+      "answerC": "They lack leaves",
+      "correctAnswer": "A",
+      "justification": "For larger and more sophisticated 'vascular' plants, there must be a system to transport water from the roots up to the leaves."
+    },
+    {
+      "id": "16",
+      "texte": "What type of molecule makes up paper and allows water to climb through capillary action?",
+      "answerA": "Cellulose",
+      "answerB": "Starch",
+      "answerC": "Protein",
+      "correctAnswer": "A",
+      "justification": "Paper is mostly made from a plant material called cellulose... where water could climb through capillary action, just like in the xylem."
+    },
+    {
+      "id": "17",
+      "texte": "What happens to excess sugar produced in photosynthesis?",
+      "answerA": "It is stored as starch",
+      "answerB": "It is immediately burned for energy",
+      "answerC": "It is lost through stomata",
+      "correctAnswer": "A",
+      "justification": "Some of that sugar may be consumed immediately for ATP in the mitochondria. Leftover sugar molecules may be chained together into a macromolecule starch to save for later."
+    },
+    {
+      "id": "18",
+      "texte": "What is the main structural function of cellulose in plants?",
+      "answerA": "It stores energy",
+      "answerB": "It builds the cell walls",
+      "answerC": "It aids in photosynthesis",
+      "correctAnswer": "B",
+      "justification": "Cellulose is much 'tougher' than starch and is used primarily as a building material, making up wood and the cell walls of plant cells."
+    },
+    {
+      "id": "19",
+      "texte": "What allows termites to digest cellulose?",
+      "answerA": "Strong stomach acid",
+      "answerB": "Symbiotic gut bacteria",
+      "answerC": "Enzymes in their saliva",
+      "correctAnswer": "B",
+      "justification": "...termites (with their symbiotic gut bacteria) are capable of breaking it down into sugar as a food source."
+    },
+    {
+      "id": "20",
+      "texte": "Why is cellulose difficult for most animals to digest?",
+      "answerA": "It lacks nutritional value",
+      "answerB": "It forms strong bonds that resist digestion",
+      "answerC": "It contains toxic compounds",
+      "correctAnswer": "B",
+      "justification": "It is much more difficult to digest than starch for most animals -- it takes the form of 'dietary fiber' that passes right through our digestive systems."
+    }
+  ]
+}

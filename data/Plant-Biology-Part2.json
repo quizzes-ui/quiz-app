@@ -1,0 +1,95 @@
+{
+  "title": "Plant Biology Quiz - Additional Questions",
+  "questions": [
+    {
+      "id": "1",
+      "texte": "How do plants obtain energy for survival?",
+      "answerA": "By consuming other living things",
+      "answerB": "Through photosynthesis",
+      "answerC": "By absorbing minerals only",
+      "correctAnswer": "B",
+      "justification": "Unlike animals, which must consume other living things for energy, plants can gain their energy from photosynthesis -- converting light energy to chemical energy."
+    },
+    {
+      "id": "2",
+      "texte": "Which equation is reversed in photosynthesis?",
+      "answerA": "Cellular respiration",
+      "answerB": "Fermentation",
+      "answerC": "Digestion",
+      "correctAnswer": "A",
+      "justification": "This equation may seem familiar -- in fact it's the exact same equation for cellular respiration from the first unit, except reversed!"
+    },
+    {
+      "id": "3",
+      "texte": "What gas is released as a by-product of photosynthesis?",
+      "answerA": "Carbon dioxide",
+      "answerB": "Oxygen",
+      "answerC": "Nitrogen",
+      "correctAnswer": "B",
+      "justification": "Plants take carbon dioxide and water, use energy (from light) to combine these together into glucose (a high-energy molecule), and oxygen is also produced as a by-product."
+    },
+    {
+      "id": "4",
+      "texte": "Why did spinach disks float in the lab experiment?",
+      "answerA": "They absorbed water",
+      "answerB": "They produced oxygen bubbles",
+      "answerC": "They reacted with soap",
+      "correctAnswer": "B",
+      "justification": "The baking soda (or sodium bicarbonate, NaHCO3) acted as a source of carbon dioxide for photosynthesis, and the disks began to float because they produced oxygen bubbles."
+    },
+    {
+      "id": "5",
+      "texte": "What is the function of the cuticle in plant leaves?",
+      "answerA": "To protect against water loss",
+      "answerB": "To assist in photosynthesis",
+      "answerC": "To attract pollinators",
+      "correctAnswer": "A",
+      "justification": "Many leaves are protected by a waxy coating called a cuticle, and soap is good at washing through waxy/fatty/oily substances to allow the solution to penetrate inside."
+    },
+    {
+      "id": "6",
+      "texte": "What role do plants play in the food chain?",
+      "answerA": "They are primary producers",
+      "answerB": "They are secondary consumers",
+      "answerC": "They only decompose matter",
+      "correctAnswer": "A",
+      "justification": "Plants ('producers') absorb energy from the Sun, which forms the bottom of the food chain."
+    },
+    {
+      "id": "7",
+      "texte": "What would happen to the food chain without plants?",
+      "answerA": "It would collapse",
+      "answerB": "Animals would evolve to make energy",
+      "answerC": "Only herbivores would be affected",
+      "correctAnswer": "A",
+      "justification": "Without plants, there would be no source of energy, and so the food chain would collapse!"
+    },
+    {
+      "id": "8",
+      "texte": "What were the first photosynthetic organisms on Earth?",
+      "answerA": "Fungi",
+      "answerB": "Cyanobacteria",
+      "answerC": "Algae",
+      "correctAnswer": "B",
+      "justification": "The first organisms capable of photosynthesis were simple prokaryotes called cyanobacteria."
+    },
+    {
+      "id": "9",
+      "texte": "Which organelle in plant cells is responsible for photosynthesis?",
+      "answerA": "Mitochondria",
+      "answerB": "Chloroplasts",
+      "answerC": "Nucleus",
+      "correctAnswer": "B",
+      "justification": "Chloroplasts contain a green-colored substance called chlorophyll, which is a molecular 'antenna' or 'solar panel' that absorbs light and starts the reaction of photosynthesis."
+    },
+    {
+      "id": "10",
+      "texte": "What is one key structural difference between plant and animal cells?",
+      "answerA": "Plant cells have a rigid cell wall",
+      "answerB": "Plant cells have mitochondria, animals do not",
+      "answerC": "Animal cells have chloroplasts",
+      "correctAnswer": "A",
+      "justification": "Plant cells are more complex eukaryotic cells that contain chloroplasts, and have several other important differences from animal cells -- for example, they have a rigid cell wall outside of the cell membrane."
+    }
+  ]
+}
