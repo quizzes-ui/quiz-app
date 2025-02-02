@@ -1,5 +1,7 @@
 // components/Quiz.js
 
+'use client'
+
 import React, { useState, useEffect, useCallback } from 'react';
 import ManageQuizzes from './ManageQuizzes';
 import MenuDropdown from './MenuDropdown';
