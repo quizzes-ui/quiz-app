@@ -12,6 +12,7 @@ function MenuDropdown({
   setOrderModes
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -24,6 +25,11 @@ function MenuDropdown({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const toggleInfo = (e) => {
+    e.stopPropagation();
+    setShowInfo(!showInfo);
+  };
 
   return (
     <div className="menu-container" ref={menuRef}>
@@ -67,22 +73,31 @@ function MenuDropdown({
               className="restart-button" 
               title="Restart Quiz"
             >
-              <svg 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2.5" 
-                className="restart-icon"
-              >
-                <path 
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <RestartIcon />
               <span>Restart Quiz</span>
             </button>
           </div>
+
+          <div className="menu-item">
+            <button 
+              onClick={toggleInfo} 
+              className="keyboard-shortcuts-button"
+            >
+              <span>Keyboard Shortcuts</span>
+            </button>
+          </div>
+
+          {showInfo && (
+            <div className="menu-info">
+              <h4>Keyboard Shortcuts</h4>
+              <ul className="shortcuts-list">
+                <li><strong>A, B, C</strong> - Select answer</li>
+                <li><strong>Enter</strong> - Next question</li>
+                <li><strong>Space</strong> - Start quiz</li>
+                <li><strong>R</strong> - Restart quiz</li>
+              </ul>
+            </div>
+          )}
 
           {(uploadError || uploadSuccess) && (
             <div className="menu-item menu-messages">
