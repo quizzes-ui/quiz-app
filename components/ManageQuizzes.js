@@ -1,11 +1,12 @@
 import React, { useState, useRef } from 'react';
-import { TrashIcon, UploadIcon, InfoIcon } from './Icons';
+import { TrashIcon, UploadIcon, InfoIcon, CheckIcon } from './Icons';
 
 const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, orderModes = {}, setOrderModes }) => {
   const [uploadError, setUploadError] = useState('');
   const [uploadSuccess, setUploadSuccess] = useState('');
   const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [showQuizDetails, setShowQuizDetails] = useState(false);
+  const [quizToDelete, setQuizToDelete] = useState(null);
   const fileInputRef = useRef(null);
 
   const validateQuestionsFormat = (data) => {
@@ -126,7 +127,8 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
   };
 
   const handleDelete = (quizId) => {
-    if (window.confirm('Are you sure you want to delete this quiz?')) {
+    if (quizToDelete === quizId) {
+      // Second click - confirm deletion
       setQuizzes(prevQuizzes => {
         const updatedQuizzes = (prevQuizzes || []).filter(quiz => quiz?.id !== quizId);
         const activeQuizWasDeleted = quizzes.find(q => q?.id === quizId)?.isActive;
@@ -140,6 +142,15 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
         
         return updatedQuizzes;
       });
+      setQuizToDelete(null);
+    } else {
+      // First click - set quiz to be deleted
+      setQuizToDelete(quizId);
+      
+      // Auto-reset the delete state after a timeout
+      setTimeout(() => {
+        setQuizToDelete(prevId => prevId === quizId ? null : prevId);
+      }, 3000);
     }
   };
 
@@ -265,9 +276,9 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
                         <button 
                           onClick={() => handleDelete(quiz.id)}
                           className="delete-button-icon"
-                          title="Delete quiz"
+                          title={quizToDelete === quiz.id ? "Click again to confirm deletion" : "Delete quiz"}
                         >
-                          <TrashIcon />
+                          {quizToDelete === quiz.id ? <CheckIcon /> : <TrashIcon />}
                         </button>
                       </div>
                     </td>
