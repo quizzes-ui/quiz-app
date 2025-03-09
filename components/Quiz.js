@@ -188,8 +188,9 @@ export default function Quiz() {
     if (isQuizComplete && timeStarted && !timeCompleted) {
       setTimeCompleted(new Date());
     }
-  }, [quizData, randomizedQuestions, isQuizComplete, timeStarted, timeCompleted]);
+  }, [quizData, randomizedQuestions.length, isQuizComplete, timeStarted, timeCompleted]);
 
+  // Initialize order modes when quizzes change
   useEffect(() => {
     const modes = {};
     if (quizzes && quizzes.length > 0) {
@@ -202,10 +203,10 @@ export default function Quiz() {
     setOrderModes(modes);
   }, [quizzes]);
 
+  // Set active quiz data when quizzes change
   useEffect(() => {
     if (!quizzes || quizzes.length === 0) {
       setQuizData(null);
-      setOrderModes({});
       return;
     }
     
@@ -216,16 +217,12 @@ export default function Quiz() {
         id: activeQuiz.id
       };
       setQuizData(quizWithId);
-      setOrderModes(prev => ({
-        ...prev,
-        [activeQuiz.id]: activeQuiz.orderMode || 'random'
-      }));
     } else {
       setQuizData(null);
-      setOrderModes({});
     }
   }, [quizzes]);
 
+  // Randomize questions when quiz data or order mode changes
   useEffect(() => {
     if (quizData && quizData.questions && quizData.questions.length > 0) {
       const currentQuestions = [...quizData.questions];
@@ -250,7 +247,7 @@ export default function Quiz() {
     
     if (!isInRepeatPhase && currentQuestionIndex < randomizedQuestions.length - 1) {
       // Still in the initial phase and not at the last question
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setCurrentQuestionIndex(prevIndex => prevIndex + 1);
     } else if (!isInRepeatPhase && currentQuestionIndex === randomizedQuestions.length - 1) {
       // Just finished the initial phase
       if (questionsToRepeat && questionsToRepeat.length > 0) {
@@ -263,7 +260,7 @@ export default function Quiz() {
       }
     } else if (isInRepeatPhase && questionsToRepeat && currentQuestionIndex < questionsToRepeat.length - 1) {
       // In repeat phase and not at the last repeated question
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setCurrentQuestionIndex(prevIndex => prevIndex + 1);
     } else {
       // Finished all questions including repeats
       setIsQuizComplete(true);
@@ -272,6 +269,7 @@ export default function Quiz() {
     setShowJustification(false);
   }, [currentQuestionIndex, randomizedQuestions, isInRepeatPhase, questionsToRepeat]);
 
+  // Keyboard event handler
   useEffect(() => {
     const handleKeyPress = (event) => {
       if (!randomizedQuestions || randomizedQuestions.length === 0) {
@@ -291,14 +289,39 @@ export default function Quiz() {
       // Allow selecting answers using A, B, C keys when not showing justification
       else if (!showJustification && ['a', 'b', 'c'].includes(event.key.toLowerCase())) {
         const option = event.key.toUpperCase();
-        handleAnswerSubmit(option);
+        
+        // Create a local handleKeyboardAnswerSelect function
+        const currentQuestion = isInRepeatPhase && questionsToRepeat && questionsToRepeat.length > 0
+          ? questionsToRepeat[currentQuestionIndex] 
+          : randomizedQuestions[currentQuestionIndex];
+          
+        if (currentQuestion) {
+          setSelectedAnswer(option);
+          setShowJustification(true);
+          
+          if (option === currentQuestion.correctAnswer) {
+            if (!isInRepeatPhase) {
+              setCorrectAnswers(prev => prev + 1);
+            }
+            setTimeout(goToNextQuestion, CORRECT_ANSWER_DELAY);
+          } else {
+            if (!isInRepeatPhase) {
+              const wrongQuestion = {
+                ...currentQuestion,
+                userAnswer: option
+              };
+              setQuestionsToRepeat(prev => [...prev, wrongQuestion]);
+            }
+          }
+        }
       }
     };
 
     window.addEventListener('keypress', handleKeyPress);
     return () => window.removeEventListener('keypress', handleKeyPress);
-  }, [showJustification, selectedAnswer, currentQuestionIndex, randomizedQuestions, questionsToRepeat, isInRepeatPhase, goToNextQuestion, handleAnswerSubmit]);
+  }, [showJustification, selectedAnswer, currentQuestionIndex, randomizedQuestions, questionsToRepeat, isInRepeatPhase, goToNextQuestion, CORRECT_ANSWER_DELAY]);
 
+  // Handle answer submission
   const handleAnswerSubmit = useCallback((answer) => {
     if (!randomizedQuestions || randomizedQuestions.length === 0) {
       return;
@@ -329,6 +352,7 @@ export default function Quiz() {
     }
   }, [isInRepeatPhase, questionsToRepeat, currentQuestionIndex, randomizedQuestions, goToNextQuestion, CORRECT_ANSWER_DELAY]);
 
+  // Restart the quiz
   const handleRestart = useCallback(() => {
     setCurrentQuestionIndex(0);
     setSelectedAnswer('');
@@ -351,6 +375,7 @@ export default function Quiz() {
     }
   }, [quizData, orderModes]);
 
+  // Activate a quiz
   const handleQuizActivated = useCallback((newQuizData, orderMode) => {
     if (!newQuizData) {
       setQuizData(null);
@@ -392,6 +417,16 @@ export default function Quiz() {
   }, []);
 
   const isQuizInProgress = quizData && !isQuizComplete;
+
+  const currentQuestion = React.useMemo(() => {
+    if (!randomizedQuestions || randomizedQuestions.length === 0) {
+      return null;
+    }
+    
+    return isInRepeatPhase && questionsToRepeat && questionsToRepeat.length > 0
+      ? questionsToRepeat[currentQuestionIndex]
+      : randomizedQuestions[currentQuestionIndex];
+  }, [isInRepeatPhase, questionsToRepeat, currentQuestionIndex, randomizedQuestions]);
 
   return (
     <div className="quiz-container">
@@ -438,25 +473,20 @@ export default function Quiz() {
         />
       ) : (
         <>
-          <Question 
-            question={isInRepeatPhase && questionsToRepeat && questionsToRepeat.length > 0 
-              ? questionsToRepeat[currentQuestionIndex] 
-              : randomizedQuestions[currentQuestionIndex]
-            } 
-            onAnswerSubmit={handleAnswerSubmit}
-            selectedAnswer={selectedAnswer}
-            showJustification={showJustification}
-            currentQuestionIndex={isInRepeatPhase ? initialQuestionCount + currentQuestionIndex : currentQuestionIndex}
-            initialQuestionCount={initialQuestionCount}
-            isInRepeatPhase={isInRepeatPhase}
-            questionsToRepeat={questionsToRepeat}
-          />
-          {showJustification && randomizedQuestions && randomizedQuestions.length > 0 && 
-          selectedAnswer !== (
-            isInRepeatPhase && questionsToRepeat && questionsToRepeat.length > 0
-              ? questionsToRepeat[currentQuestionIndex]?.correctAnswer 
-              : randomizedQuestions[currentQuestionIndex]?.correctAnswer
-          ) && (
+          {currentQuestion && (
+            <Question 
+              question={currentQuestion}
+              onAnswerSubmit={handleAnswerSubmit}
+              selectedAnswer={selectedAnswer}
+              showJustification={showJustification}
+              currentQuestionIndex={isInRepeatPhase ? initialQuestionCount + currentQuestionIndex : currentQuestionIndex}
+              initialQuestionCount={initialQuestionCount}
+              isInRepeatPhase={isInRepeatPhase}
+              questionsToRepeat={questionsToRepeat}
+            />
+          )}
+          
+          {showJustification && currentQuestion && selectedAnswer !== currentQuestion.correctAnswer && (
             <button
               onClick={goToNextQuestion}
               className="quiz-button next-question"
