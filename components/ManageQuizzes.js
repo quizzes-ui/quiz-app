@@ -19,8 +19,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
       }
 
       data.questions.forEach((question, index) => {
-        if (!question.id || 
-            !question.texte || 
+        if (!question.texte || 
             !question.answerA ||
             !question.answerB ||
             !question.answerC ||
@@ -41,6 +40,27 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
     }
   };
 
+  const addIdsToQuestions = (data) => {
+    // Clone the data to avoid mutating the original
+    const processedData = { ...data };
+    
+    // Add IDs to questions if they don't have one
+    if (processedData.questions && Array.isArray(processedData.questions)) {
+      processedData.questions = processedData.questions.map((question, index) => {
+        // If question doesn't have an ID, add one
+        if (!question.id) {
+          return {
+            ...question,
+            id: `q-${Date.now()}-${index}`  // Create a unique ID using timestamp and index
+          };
+        }
+        return question;
+      });
+    }
+    
+    return processedData;
+  };
+
   const handleFileUpload = async (event) => {
     const file = event.target.files?.[0];
     setUploadError('');
@@ -55,9 +75,12 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
 
     try {
       const fileContent = await file.text();
-      const parsedData = JSON.parse(fileContent);
+      let parsedData = JSON.parse(fileContent);
 
       if (validateQuestionsFormat(parsedData)) {
+        // Add IDs to questions if they don't have them
+        parsedData = addIdsToQuestions(parsedData);
+        
         const existingQuiz = quizzes.find(quiz => quiz?.title === parsedData.title);
         
         if (existingQuiz) {
@@ -308,7 +331,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
                 <h4>Questions Preview:</h4>
                 <div className="questions-preview-list">
                   {selectedQuiz.data?.questions?.slice(0, 5).map((question, index) => (
-                    <div key={question.id} className="question-preview-item">
+                    <div key={`preview-${index}`} className="question-preview-item">
                       <p className="question-preview-text"><strong>Q{index + 1}:</strong> {question.texte}</p>
                       <div className="question-preview-answers">
                         <p className={question.correctAnswer === 'A' ? 'correct-answer' : ''}>A: {question.answerA}</p>

@@ -179,6 +179,11 @@ export default function Quiz() {
   const [timeStarted, setTimeStarted] = useState(null);
   const [timeCompleted, setTimeCompleted] = useState(null);
 
+  // Generate a unique key for questions that don't have an ID
+  const getQuestionKey = useCallback((question, index) => {
+    return question.id || `q-${index}-${question.texte?.slice(0, 10)?.replace(/\s+/g, '-')}`;
+  }, []);
+
   // Timer for tracking quiz duration
   useEffect(() => {
     if (quizData && randomizedQuestions.length > 0 && !timeStarted) {
