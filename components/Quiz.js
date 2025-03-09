@@ -93,8 +93,6 @@ function Header({
   title,
   onRestartQuiz,
   onManageQuizzes,
-  orderModes,
-  setOrderModes,
   correctAnswers,
   initialQuestionCount,
   isQuizInProgress
@@ -112,8 +110,6 @@ function Header({
       <MenuDropdown 
         onRestartQuiz={onRestartQuiz}
         onManageQuizzes={onManageQuizzes}
-        orderModes={orderModes}
-        setOrderModes={setOrderModes}
       />
     </div>
   );
@@ -175,7 +171,6 @@ export default function Quiz() {
   const [randomizedQuestions, setRandomizedQuestions] = useState([]);
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [quizzes, setQuizzes] = useLocalStorage(LOCAL_STORAGE_KEY, []);
-  const [orderModes, setOrderModes] = useState({});
   const [questionsToRepeat, setQuestionsToRepeat] = useState([]);
   const [isInRepeatPhase, setIsInRepeatPhase] = useState(false);
   const [initialQuestionCount, setInitialQuestionCount] = useState(0);
@@ -198,19 +193,6 @@ export default function Quiz() {
     }
   }, [quizData, randomizedQuestions.length, isQuizComplete, timeStarted, timeCompleted]);
 
-  // Initialize order modes when quizzes change
-  useEffect(() => {
-    const modes = {};
-    if (quizzes && quizzes.length > 0) {
-      quizzes.forEach(quiz => {
-        if (quiz && quiz.id) {
-          modes[quiz.id] = 'random';
-        }
-      });
-    }
-    setOrderModes(modes);
-  }, [quizzes]);
-
   // Set active quiz data when quizzes change
   useEffect(() => {
     if (!quizzes || quizzes.length === 0) {
@@ -230,15 +212,12 @@ export default function Quiz() {
     }
   }, [quizzes]);
 
-  // Randomize questions when quiz data or order mode changes
+  // Randomize questions when quiz data changes
   useEffect(() => {
     if (quizData && quizData.questions && quizData.questions.length > 0) {
       const currentQuestions = [...quizData.questions];
-      const mode = quizData.id && orderModes[quizData.id] ? orderModes[quizData.id] : 'random';
-      
-      const randomized = mode === 'random' ? 
-        shuffleArray([...currentQuestions]) : 
-        [...currentQuestions];
+      // Always randomize questions
+      const randomized = shuffleArray([...currentQuestions]);
       
       setRandomizedQuestions(randomized);
       setInitialQuestionCount(randomized.length);
@@ -246,7 +225,7 @@ export default function Quiz() {
       setRandomizedQuestions([]);
       setInitialQuestionCount(0);
     }
-  }, [quizData, orderModes]);
+  }, [quizData]);
 
   const goToNextQuestion = useCallback(() => {
     if (!randomizedQuestions || randomizedQuestions.length === 0) {
@@ -374,17 +353,13 @@ export default function Quiz() {
     
     if (quizData && quizData.questions && quizData.questions.length > 0) {
       const currentQuestions = [...quizData.questions];
-      const mode = quizData.id && orderModes[quizData.id] ? orderModes[quizData.id] : 'random';
-      
-      setRandomizedQuestions(mode === 'random' ? 
-        shuffleArray([...currentQuestions]) : 
-        [...currentQuestions]
-      );
+      // Always shuffle questions
+      setRandomizedQuestions(shuffleArray([...currentQuestions]));
     }
-  }, [quizData, orderModes]);
+  }, [quizData]);
 
   // Activate a quiz
-  const handleQuizActivated = useCallback((newQuizData, orderMode) => {
+  const handleQuizActivated = useCallback((newQuizData) => {
     if (!newQuizData) {
       setQuizData(null);
       setRandomizedQuestions([]);
@@ -392,12 +367,6 @@ export default function Quiz() {
     }
     
     setQuizData(newQuizData);
-    if (newQuizData.id) {
-      setOrderModes(prev => ({
-        ...prev,
-        [newQuizData.id]: orderMode || 'random'
-      }));
-    }
     
     // Reset quiz state
     setCurrentQuestionIndex(0);
@@ -411,10 +380,8 @@ export default function Quiz() {
     setTimeCompleted(null);
     
     if (newQuizData.questions && newQuizData.questions.length > 0) {
-      const mode = newQuizData.id && orderMode ? orderMode : 'random';
-      const randomized = mode === 'random' ? 
-        shuffleArray([...newQuizData.questions]) : 
-        [...newQuizData.questions];
+      // Always shuffle questions
+      const randomized = shuffleArray([...newQuizData.questions]);
       
       setRandomizedQuestions(randomized);
       setInitialQuestionCount(randomized.length);
@@ -442,8 +409,6 @@ export default function Quiz() {
         title={quizData?.title || "Quiz App"}
         onRestartQuiz={handleRestart}
         onManageQuizzes={() => setShowManageQuizzes(true)}
-        orderModes={orderModes}
-        setOrderModes={setOrderModes}
         correctAnswers={correctAnswers}
         initialQuestionCount={initialQuestionCount}
         isQuizInProgress={isQuizInProgress}
@@ -454,8 +419,6 @@ export default function Quiz() {
           onQuizActivated={handleQuizActivated}
           quizzes={quizzes || []}
           setQuizzes={setQuizzes}
-          orderModes={orderModes}
-          setOrderModes={setOrderModes}
         />
       )}
       {!quizData ? (

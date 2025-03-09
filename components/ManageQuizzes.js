@@ -133,17 +133,11 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
         
         if (activeQuizWasDeleted && updatedQuizzes.length > 0) {
           updatedQuizzes[0].isActive = true;
-          onQuizActivated(updatedQuizzes[0].data, orderModes[updatedQuizzes[0].id] || 'random');
+          onQuizActivated(updatedQuizzes[0].data);
         } else if (updatedQuizzes.length === 0) {
           onQuizActivated(null);
         }
         
-        setOrderModes(prev => {
-          const newModes = { ...prev };
-          delete newModes[quizId];
-          return newModes;
-        });
-
         return updatedQuizzes;
       });
     }
@@ -158,7 +152,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
         } : null
       ).filter(Boolean)
     );
-    onQuizActivated(null, 'random');
+    onQuizActivated(null);
   };
 
   const handleActivate = (quizId) => {
@@ -173,19 +167,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
     
     const activatedQuiz = quizzes.find(quiz => quiz?.id === quizId);
     if (activatedQuiz?.data) {
-      onQuizActivated(activatedQuiz.data, orderModes[quizId] || 'random');
-    }
-  };
-
-  const toggleOrderMode = (quizId) => {
-    setOrderModes(prev => ({
-      ...prev,
-      [quizId]: prev[quizId] === 'random' ? 'sequential' : 'random'
-    }));
-    
-    const updatedQuiz = quizzes.find(quiz => quiz?.id === quizId);
-    if (updatedQuiz?.isActive && updatedQuiz?.data) {
-      onQuizActivated(updatedQuiz.data, orderModes[quizId] === 'random' ? 'sequential' : 'random');
+      onQuizActivated(activatedQuiz.data);
     }
   };
   
@@ -240,13 +222,6 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
               <UploadIcon />
               <span>Upload New Questions</span>
             </label>
-            <button onClick={() => {
-              if (fileInputRef.current) {
-                fileInputRef.current.click();
-              }
-            }} className="upload-button upload-blue">
-              <span>Browse Files</span>
-            </button>
             <button onClick={onClose} className="upload-button upload-green">
               Start Quiz
             </button>
@@ -279,13 +254,6 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
                           className={`activate-button ${quiz.isActive ? 'active' : 'inactive'}`}
                         >
                           {quiz.isActive ? 'Active' : 'Inactive'}
-                        </button>
-                        <button 
-                          onClick={() => toggleOrderMode(quiz.id)}
-                          className={`order-button ${orderModes[quiz.id]}`}
-                          disabled={!quiz.isActive}
-                        >
-                          {orderModes[quiz.id] === 'random' ? 'Random' : 'Sequential'}
                         </button>
                         <button
                           onClick={() => viewQuizDetails(quiz)}
@@ -325,12 +293,11 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
                 <p><strong>Total Questions:</strong> {selectedQuiz.data?.questions?.length || 0}</p>
                 <p><strong>Date Added:</strong> {selectedQuiz.dateAdded ? formatDate(selectedQuiz.dateAdded) : 'N/A'}</p>
                 <p><strong>Quiz Status:</strong> {selectedQuiz.isActive ? 'Active' : 'Inactive'}</p>
-                <p><strong>Question Order:</strong> {orderModes[selectedQuiz.id] === 'random' ? 'Random' : 'Sequential'}</p>
               </div>
               <div className="quiz-questions-preview">
-                <h4>Questions Preview:</h4>
+                <h4>Questions:</h4>
                 <div className="questions-preview-list">
-                  {selectedQuiz.data?.questions?.slice(0, 5).map((question, index) => (
+                  {selectedQuiz.data?.questions?.map((question, index) => (
                     <div key={`preview-${index}`} className="question-preview-item">
                       <p className="question-preview-text"><strong>Q{index + 1}:</strong> {question.texte}</p>
                       <div className="question-preview-answers">
@@ -340,11 +307,6 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
                       </div>
                     </div>
                   ))}
-                  {selectedQuiz.data?.questions?.length > 5 && (
-                    <p className="more-questions-note">
-                      ...and {selectedQuiz.data.questions.length - 5} more questions
-                    </p>
-                  )}
                 </div>
               </div>
             </div>

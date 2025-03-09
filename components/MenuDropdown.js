@@ -7,9 +7,7 @@ function MenuDropdown({
   onRestartQuiz,
   uploadError,
   uploadSuccess,
-  onManageQuizzes,
-  orderModes,
-  setOrderModes
+  onManageQuizzes
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
