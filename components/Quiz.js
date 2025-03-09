@@ -31,6 +31,8 @@ function Question({ question, onAnswerSubmit, selectedAnswer, showJustification,
     }
   };
 
+  const isCorrect = selectedAnswer === question.correctAnswer;
+
   return (
     <div className="question-container" ref={questionRef}>
       <div className="progress-header">
@@ -72,14 +74,15 @@ function Question({ question, onAnswerSubmit, selectedAnswer, showJustification,
         ))}
       </div>
       {showJustification && (
-        <div className={`justification ${selectedAnswer === question.correctAnswer ? 'correct' : 'incorrect'}`}>
+        <div className={`justification ${isCorrect ? 'correct' : 'incorrect'}`}>
           <div className="feedback-with-icon">
-            {selectedAnswer === question.correctAnswer ? <CheckIcon /> : <XIcon />}
+            {isCorrect ? <CheckIcon /> : <XIcon />}
             <p className="answer-feedback">
-              {selectedAnswer === question.correctAnswer ? 'Correct!' : 'Incorrect'}
+              {isCorrect ? 'Correct!' : 'Incorrect'}
             </p>
           </div>
-          <p className="justification-text">{question.justification}</p>
+          {/* Only show justification text for incorrect answers */}
+          {!isCorrect && <p className="justification-text">{question.justification}</p>}
         </div>
       )}
     </div>
