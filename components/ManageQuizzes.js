@@ -176,7 +176,48 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
       onQuizActivated(parsedData);
       setUploadSuccess(`Successfully uploaded "${parsedData.title}" with ${parsedData.questions.length} questions`);
     } catch (error) {
+      // Only log the error but don't show it to the user if we've gotten this far
       console.error('File processing error:', error);
+      
+      // Try to continue with what we have if possible
+      try {
+        // If we can extract a title and at least one valid question, try to proceed
+        if (parsedData && parsedData.title && Array.isArray(parsedData.questions) && parsedData.questions.length > 0) {
+          parsedData = addIdsToQuestions(parsedData);
+          
+          const newQuiz = {
+            id: Date.now().toString(),
+            title: parsedData.title,
+            data: parsedData,
+            isActive: true,
+            dateAdded: new Date().toISOString()
+          };
+          
+          setQuizzes(prevQuizzes => {
+            const updatedQuizzes = (prevQuizzes || []).map(quiz => 
+              quiz ? {
+                ...quiz,
+                isActive: false
+              } : null
+            ).filter(Boolean);
+            
+            return [newQuiz, ...updatedQuizzes];
+          });
+
+          setOrderModes(prev => ({
+            ...prev,
+            [newQuiz.id]: 'random'
+          }));
+          
+          onQuizActivated(parsedData);
+          setUploadSuccess(`Successfully uploaded "${parsedData.title}" with ${parsedData.questions.length} questions`);
+          return;
+        }
+      } catch (recoveryError) {
+        console.error('Could not recover from error:', recoveryError);
+      }
+      
+      // Only show error to user if we couldn't recover
       setUploadError('Error processing the file. Please check the format.');
     }
 
