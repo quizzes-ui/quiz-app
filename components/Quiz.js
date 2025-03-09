@@ -7,17 +7,19 @@ import { CheckIcon, XIcon } from './Icons';
 import useLocalStorage from '../hooks/useLocalStorage';
 import { shuffleArray } from './utils';
 
-function Question({ question, onAnswerSubmit, selectedAnswer, showJustification, currentQuestionIndex, initialQuestionCount, isInRepeatPhase }) {
+function Question({ question, onAnswerSubmit, selectedAnswer, showJustification, currentQuestionIndex, initialQuestionCount, isInRepeatPhase, questionsToRepeat }) {
   const [shuffledOptions, setShuffledOptions] = useState([]);
   const questionRef = useRef(null);
 
   useEffect(() => {
-    const options = ['A', 'B', 'C'];
-    setShuffledOptions(shuffleArray(options));
-    
-    // Scroll to the question when a new one is loaded
-    if (questionRef.current) {
-      questionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (question) {
+      const options = ['A', 'B', 'C'];
+      setShuffledOptions(shuffleArray(options));
+      
+      // Scroll to the question when a new one is loaded
+      if (questionRef.current) {
+        questionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
   }, [question]);
 
@@ -33,7 +35,7 @@ function Question({ question, onAnswerSubmit, selectedAnswer, showJustification,
     <div className="question-container" ref={questionRef}>
       <div className="progress-header">
         {isInRepeatPhase ? (
-          <h3>Learn from your errors - {currentQuestionIndex + 1} of {isInRepeatPhase ? questionsToRepeat?.length : initialQuestionCount}</h3>
+          <h3>Learn from your errors - {currentQuestionIndex + 1} of {questionsToRepeat?.length || 0}</h3>
         ) : (
           <h3>Question {Math.min(currentQuestionIndex + 1, initialQuestionCount)} of {initialQuestionCount}</h3>
         )}
@@ -115,7 +117,7 @@ function Header({
 }
 
 function QuizComplete({ correctAnswers, initialQuestionCount, onRestartQuiz }) {
-  const normalizedScore = (correctAnswers / initialQuestionCount) * 20;
+  const normalizedScore = initialQuestionCount > 0 ? (correctAnswers / initialQuestionCount) * 20 : 0;
   let scoreMessage = '';
   
   if (normalizedScore >= 16) {
@@ -190,15 +192,25 @@ export default function Quiz() {
 
   useEffect(() => {
     const modes = {};
-    quizzes.forEach(quiz => {
-      modes[quiz.id] = 'random';
-    });
+    if (quizzes && quizzes.length > 0) {
+      quizzes.forEach(quiz => {
+        if (quiz && quiz.id) {
+          modes[quiz.id] = 'random';
+        }
+      });
+    }
     setOrderModes(modes);
   }, [quizzes]);
 
   useEffect(() => {
-    const activeQuiz = quizzes.find(quiz => quiz.isActive);
-    if (activeQuiz) {
+    if (!quizzes || quizzes.length === 0) {
+      setQuizData(null);
+      setOrderModes({});
+      return;
+    }
+    
+    const activeQuiz = quizzes.find(quiz => quiz?.isActive);
+    if (activeQuiz && activeQuiz.data) {
       const quizWithId = {
         ...activeQuiz.data,
         id: activeQuiz.id
@@ -215,13 +227,13 @@ export default function Quiz() {
   }, [quizzes]);
 
   useEffect(() => {
-    if (quizData && quizData.questions) {
+    if (quizData && quizData.questions && quizData.questions.length > 0) {
       const currentQuestions = [...quizData.questions];
       const mode = quizData.id && orderModes[quizData.id] ? orderModes[quizData.id] : 'random';
       
       const randomized = mode === 'random' ? 
-        currentQuestions.sort(() => Math.random() - 0.5) : 
-        currentQuestions;
+        shuffleArray([...currentQuestions]) : 
+        [...currentQuestions];
       
       setRandomizedQuestions(randomized);
       setInitialQuestionCount(randomized.length);
@@ -232,12 +244,16 @@ export default function Quiz() {
   }, [quizData, orderModes]);
 
   const goToNextQuestion = useCallback(() => {
+    if (!randomizedQuestions || randomizedQuestions.length === 0) {
+      return;
+    }
+    
     if (!isInRepeatPhase && currentQuestionIndex < randomizedQuestions.length - 1) {
       // Still in the initial phase and not at the last question
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else if (!isInRepeatPhase && currentQuestionIndex === randomizedQuestions.length - 1) {
       // Just finished the initial phase
-      if (questionsToRepeat.length > 0) {
+      if (questionsToRepeat && questionsToRepeat.length > 0) {
         // There are questions to repeat
         setIsInRepeatPhase(true);
         setCurrentQuestionIndex(0);
@@ -245,7 +261,7 @@ export default function Quiz() {
         // No questions to repeat, finish the quiz
         setIsQuizComplete(true);
       }
-    } else if (isInRepeatPhase && currentQuestionIndex < questionsToRepeat.length - 1) {
+    } else if (isInRepeatPhase && questionsToRepeat && currentQuestionIndex < questionsToRepeat.length - 1) {
       // In repeat phase and not at the last repeated question
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
@@ -254,17 +270,21 @@ export default function Quiz() {
     }
     setSelectedAnswer('');
     setShowJustification(false);
-  }, [currentQuestionIndex, randomizedQuestions.length, isInRepeatPhase, questionsToRepeat.length]);
+  }, [currentQuestionIndex, randomizedQuestions, isInRepeatPhase, questionsToRepeat]);
 
   useEffect(() => {
     const handleKeyPress = (event) => {
+      if (!randomizedQuestions || randomizedQuestions.length === 0) {
+        return;
+      }
+      
       // If Enter key is pressed when showing justification for incorrect answer, go to next question
       if (event.key === 'Enter' && showJustification) {
-        const currentQuestion = isInRepeatPhase 
+        const currentQuestion = isInRepeatPhase && questionsToRepeat && questionsToRepeat.length > 0
           ? questionsToRepeat[currentQuestionIndex] 
           : randomizedQuestions[currentQuestionIndex];
           
-        if (selectedAnswer !== currentQuestion?.correctAnswer) {
+        if (currentQuestion && selectedAnswer !== currentQuestion.correctAnswer) {
           goToNextQuestion();
         }
       } 
@@ -277,22 +297,26 @@ export default function Quiz() {
 
     window.addEventListener('keypress', handleKeyPress);
     return () => window.removeEventListener('keypress', handleKeyPress);
-  }, [showJustification, selectedAnswer, currentQuestionIndex, randomizedQuestions, questionsToRepeat, isInRepeatPhase, goToNextQuestion]);
+  }, [showJustification, selectedAnswer, currentQuestionIndex, randomizedQuestions, questionsToRepeat, isInRepeatPhase, goToNextQuestion, handleAnswerSubmit]);
 
-  const handleAnswerSubmit = (answer) => {
+  const handleAnswerSubmit = useCallback((answer) => {
+    if (!randomizedQuestions || randomizedQuestions.length === 0) {
+      return;
+    }
+    
     setSelectedAnswer(answer);
     setShowJustification(true);
     
-    const currentQuestion = isInRepeatPhase 
+    const currentQuestion = isInRepeatPhase && questionsToRepeat && questionsToRepeat.length > 0
       ? questionsToRepeat[currentQuestionIndex] 
       : randomizedQuestions[currentQuestionIndex];
       
-    if (answer === currentQuestion.correctAnswer) {
+    if (currentQuestion && answer === currentQuestion.correctAnswer) {
       if (!isInRepeatPhase) {
         setCorrectAnswers(prev => prev + 1);
       }
       setTimeout(goToNextQuestion, CORRECT_ANSWER_DELAY);
-    } else {
+    } else if (currentQuestion) {
       if (!isInRepeatPhase) {
         const wrongQuestion = {
           ...currentQuestion,
@@ -303,9 +327,9 @@ export default function Quiz() {
       // Remove the automatic transition for wrong answers
       // The "Next Question" button will handle this case
     }
-  };
+  }, [isInRepeatPhase, questionsToRepeat, currentQuestionIndex, randomizedQuestions, goToNextQuestion, CORRECT_ANSWER_DELAY]);
 
-  const handleRestart = () => {
+  const handleRestart = useCallback(() => {
     setCurrentQuestionIndex(0);
     setSelectedAnswer('');
     setShowJustification(false);
@@ -316,32 +340,56 @@ export default function Quiz() {
     setTimeStarted(new Date());
     setTimeCompleted(null);
     
-    if (quizData && quizData.questions) {
+    if (quizData && quizData.questions && quizData.questions.length > 0) {
       const currentQuestions = [...quizData.questions];
       const mode = quizData.id && orderModes[quizData.id] ? orderModes[quizData.id] : 'random';
       
       setRandomizedQuestions(mode === 'random' ? 
-        shuffleArray(currentQuestions) : 
-        currentQuestions
+        shuffleArray([...currentQuestions]) : 
+        [...currentQuestions]
       );
     }
-  };
+  }, [quizData, orderModes]);
 
-  const handleQuizActivated = (quizData, orderMode) => {
-    if (!quizData) {
+  const handleQuizActivated = useCallback((newQuizData, orderMode) => {
+    if (!newQuizData) {
       setQuizData(null);
       setRandomizedQuestions([]);
       return;
     }
     
-    setQuizData(quizData);
-    setOrderModes(prev => ({
-      ...prev,
-      [quizData.id]: orderMode || 'random'
-    }));
+    setQuizData(newQuizData);
+    if (newQuizData.id) {
+      setOrderModes(prev => ({
+        ...prev,
+        [newQuizData.id]: orderMode || 'random'
+      }));
+    }
     
-    handleRestart();
-  };
+    // Reset quiz state
+    setCurrentQuestionIndex(0);
+    setSelectedAnswer('');
+    setShowJustification(false);
+    setIsQuizComplete(false);
+    setCorrectAnswers(0);
+    setQuestionsToRepeat([]);
+    setIsInRepeatPhase(false);
+    setTimeStarted(new Date());
+    setTimeCompleted(null);
+    
+    if (newQuizData.questions && newQuizData.questions.length > 0) {
+      const mode = newQuizData.id && orderMode ? orderMode : 'random';
+      const randomized = mode === 'random' ? 
+        shuffleArray([...newQuizData.questions]) : 
+        [...newQuizData.questions];
+      
+      setRandomizedQuestions(randomized);
+      setInitialQuestionCount(randomized.length);
+    } else {
+      setRandomizedQuestions([]);
+      setInitialQuestionCount(0);
+    }
+  }, []);
 
   const isQuizInProgress = quizData && !isQuizComplete;
 
@@ -361,7 +409,7 @@ export default function Quiz() {
         <ManageQuizzes
           onClose={() => setShowManageQuizzes(false)}
           onQuizActivated={handleQuizActivated}
-          quizzes={quizzes}
+          quizzes={quizzes || []}
           setQuizzes={setQuizzes}
           orderModes={orderModes}
           setOrderModes={setOrderModes}
@@ -377,7 +425,7 @@ export default function Quiz() {
             Upload Questions
           </button>
         </div>
-      ) : !randomizedQuestions.length ? (
+      ) : !randomizedQuestions || randomizedQuestions.length === 0 ? (
         <div className="loading-container">
           <div className="loading-spinner"></div>
           <p>Loading questions...</p>
@@ -391,20 +439,32 @@ export default function Quiz() {
       ) : (
         <>
           <Question 
-            question={isInRepeatPhase ? questionsToRepeat[currentQuestionIndex] : randomizedQuestions[currentQuestionIndex]} 
+            question={isInRepeatPhase && questionsToRepeat && questionsToRepeat.length > 0 
+              ? questionsToRepeat[currentQuestionIndex] 
+              : randomizedQuestions[currentQuestionIndex]
+            } 
             onAnswerSubmit={handleAnswerSubmit}
             selectedAnswer={selectedAnswer}
             showJustification={showJustification}
             currentQuestionIndex={isInRepeatPhase ? initialQuestionCount + currentQuestionIndex : currentQuestionIndex}
             initialQuestionCount={initialQuestionCount}
             isInRepeatPhase={isInRepeatPhase}
+            questionsToRepeat={questionsToRepeat}
           />
-          {showJustification && selectedAnswer !== (isInRepeatPhase ? questionsToRepeat[currentQuestionIndex].correctAnswer : randomizedQuestions[currentQuestionIndex].correctAnswer) && (
+          {showJustification && randomizedQuestions && randomizedQuestions.length > 0 && 
+          selectedAnswer !== (
+            isInRepeatPhase && questionsToRepeat && questionsToRepeat.length > 0
+              ? questionsToRepeat[currentQuestionIndex]?.correctAnswer 
+              : randomizedQuestions[currentQuestionIndex]?.correctAnswer
+          ) && (
             <button
               onClick={goToNextQuestion}
               className="quiz-button next-question"
             >
-              {(isInRepeatPhase && currentQuestionIndex === questionsToRepeat.length - 1) ? 'Finish Quiz' : 'Next Question'}
+              {(isInRepeatPhase && questionsToRepeat && currentQuestionIndex === questionsToRepeat.length - 1) 
+                ? 'Finish Quiz' 
+                : 'Next Question'
+              }
             </button>
           )}
           

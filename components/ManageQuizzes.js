@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { TrashIcon, UploadIcon, InfoIcon } from './Icons';
 
-const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderModes, setOrderModes }) => {
+const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, orderModes = {}, setOrderModes }) => {
   const [uploadError, setUploadError] = useState('');
   const [uploadSuccess, setUploadSuccess] = useState('');
   const [selectedQuiz, setSelectedQuiz] = useState(null);
@@ -42,7 +42,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
   };
 
   const handleFileUpload = async (event) => {
-    const file = event.target.files[0];
+    const file = event.target.files?.[0];
     setUploadError('');
     setUploadSuccess('');
 
@@ -58,7 +58,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
       const parsedData = JSON.parse(fileContent);
 
       if (validateQuestionsFormat(parsedData)) {
-        const existingQuiz = quizzes.find(quiz => quiz.title === parsedData.title);
+        const existingQuiz = quizzes.find(quiz => quiz?.title === parsedData.title);
         
         if (existingQuiz) {
           setUploadError('A quiz with this title already exists');
@@ -74,10 +74,13 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
         };
         
         setQuizzes(prevQuizzes => {
-          const updatedQuizzes = prevQuizzes.map(quiz => ({
-            ...quiz,
-            isActive: false
-          }));
+          const updatedQuizzes = (prevQuizzes || []).map(quiz => 
+            quiz ? {
+              ...quiz,
+              isActive: false
+            } : null
+          ).filter(Boolean);
+          
           return [newQuiz, ...updatedQuizzes];
         });
 
@@ -91,16 +94,21 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
       }
     } catch (error) {
       setUploadError('Invalid JSON file format');
+      console.error('Parse error:', error);
     }
 
-    event.target.value = '';
+    if (event.target) {
+      event.target.value = '';
+    }
   };
 
   const handleDelete = (quizId) => {
     if (window.confirm('Are you sure you want to delete this quiz?')) {
       setQuizzes(prevQuizzes => {
-        const updatedQuizzes = prevQuizzes.filter(quiz => quiz.id !== quizId);
-        if (quizzes.find(q => q.id === quizId)?.isActive && updatedQuizzes.length > 0) {
+        const updatedQuizzes = (prevQuizzes || []).filter(quiz => quiz?.id !== quizId);
+        const activeQuizWasDeleted = quizzes.find(q => q?.id === quizId)?.isActive;
+        
+        if (activeQuizWasDeleted && updatedQuizzes.length > 0) {
           updatedQuizzes[0].isActive = true;
           onQuizActivated(updatedQuizzes[0].data, orderModes[updatedQuizzes[0].id] || 'random');
         } else if (updatedQuizzes.length === 0) {
@@ -120,23 +128,28 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
 
   const handleDeactivate = () => {
     setQuizzes(prevQuizzes => 
-      prevQuizzes.map(quiz => ({
-        ...quiz,
-        isActive: false
-      }))
+      (prevQuizzes || []).map(quiz => 
+        quiz ? {
+          ...quiz,
+          isActive: false
+        } : null
+      ).filter(Boolean)
     );
     onQuizActivated(null, 'random');
   };
 
   const handleActivate = (quizId) => {
     setQuizzes(prevQuizzes => 
-      prevQuizzes.map(quiz => ({
-        ...quiz,
-        isActive: quiz.id === quizId
-      }))
+      (prevQuizzes || []).map(quiz => 
+        quiz ? {
+          ...quiz,
+          isActive: quiz.id === quizId
+        } : null
+      ).filter(Boolean)
     );
-    const activatedQuiz = quizzes.find(quiz => quiz.id === quizId);
-    if (activatedQuiz) {
+    
+    const activatedQuiz = quizzes.find(quiz => quiz?.id === quizId);
+    if (activatedQuiz?.data) {
       onQuizActivated(activatedQuiz.data, orderModes[quizId] || 'random');
     }
   };
@@ -146,15 +159,18 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
       ...prev,
       [quizId]: prev[quizId] === 'random' ? 'sequential' : 'random'
     }));
-    const updatedQuiz = quizzes.find(quiz => quiz.id === quizId);
-    if (updatedQuiz?.isActive) {
+    
+    const updatedQuiz = quizzes.find(quiz => quiz?.id === quizId);
+    if (updatedQuiz?.isActive && updatedQuiz?.data) {
       onQuizActivated(updatedQuiz.data, orderModes[quizId] === 'random' ? 'sequential' : 'random');
     }
   };
   
   const viewQuizDetails = (quiz) => {
-    setSelectedQuiz(quiz);
-    setShowQuizDetails(true);
+    if (quiz) {
+      setSelectedQuiz(quiz);
+      setShowQuizDetails(true);
+    }
   };
   
   const closeQuizDetails = () => {
@@ -202,7 +218,9 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
               <span>Upload New Questions</span>
             </label>
             <button onClick={() => {
-              fileInputRef.current.click();
+              if (fileInputRef.current) {
+                fileInputRef.current.click();
+              }
             }} className="upload-button upload-blue">
               <span>Browse Files</span>
             </button>
@@ -213,7 +231,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
         </div>
 
         <div className="quizzes-list">
-          {quizzes.length === 0 ? (
+          {!quizzes || quizzes.length === 0 ? (
             <p className="no-quizzes-message">No question files are loaded yet.</p>
           ) : (
             <table>
@@ -226,10 +244,10 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
                 </tr>
               </thead>
               <tbody>
-                {quizzes.map(quiz => (
+                {quizzes.map(quiz => quiz && (
                   <tr key={quiz.id} className={quiz.isActive ? 'active-row' : ''}>
                     <td className="quiz-title-cell">{quiz.title}</td>
-                    <td className="questions-count-cell">{quiz.data.questions.length}</td>
+                    <td className="questions-count-cell">{quiz.data?.questions?.length || 0}</td>
                     <td className="date-added-cell">{quiz.dateAdded ? formatDate(quiz.dateAdded) : 'N/A'}</td>
                     <td className="actions-cell">
                       <div className="action-buttons">
@@ -281,7 +299,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
             </div>
             <div className="quiz-details-content">
               <div className="quiz-details-summary">
-                <p><strong>Total Questions:</strong> {selectedQuiz.data.questions.length}</p>
+                <p><strong>Total Questions:</strong> {selectedQuiz.data?.questions?.length || 0}</p>
                 <p><strong>Date Added:</strong> {selectedQuiz.dateAdded ? formatDate(selectedQuiz.dateAdded) : 'N/A'}</p>
                 <p><strong>Quiz Status:</strong> {selectedQuiz.isActive ? 'Active' : 'Inactive'}</p>
                 <p><strong>Question Order:</strong> {orderModes[selectedQuiz.id] === 'random' ? 'Random' : 'Sequential'}</p>
@@ -289,7 +307,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
               <div className="quiz-questions-preview">
                 <h4>Questions Preview:</h4>
                 <div className="questions-preview-list">
-                  {selectedQuiz.data.questions.slice(0, 5).map((question, index) => (
+                  {selectedQuiz.data?.questions?.slice(0, 5).map((question, index) => (
                     <div key={question.id} className="question-preview-item">
                       <p className="question-preview-text"><strong>Q{index + 1}:</strong> {question.texte}</p>
                       <div className="question-preview-answers">
@@ -299,7 +317,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes, setQuizzes, orderMod
                       </div>
                     </div>
                   ))}
-                  {selectedQuiz.data.questions.length > 5 && (
+                  {selectedQuiz.data?.questions?.length > 5 && (
                     <p className="more-questions-note">
                       ...and {selectedQuiz.data.questions.length - 5} more questions
                     </p>
