@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MenuIcon, UploadIcon, RestartIcon } from './Icons';
+import { MenuIcon, RestartIcon, LibraryIcon } from './Icons';
 
 function MenuDropdown({ 
   isUsingCustomQuestions, 
@@ -44,21 +44,11 @@ function MenuDropdown({
         <div className="menu-dropdown">
           <div className="menu-item">
             <button onClick={() => {
-              onManageQuizzes();
-              setIsOpen(false);
-            }} className="manage-quizzes-button">
-              <UploadIcon />
-              <span>Local Library</span>
-            </button>
-          </div>
-
-          <div className="menu-item">
-            <button onClick={() => {
               onOnlineLibrary();
               setIsOpen(false);
             }} className="online-library-button">
-              <UploadIcon />
-              <span>Online Library</span>
+              <LibraryIcon />
+              <span>Questions Library</span>
             </button>
           </div>
 

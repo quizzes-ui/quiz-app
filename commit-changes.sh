@@ -23,6 +23,15 @@ if [ -z "$current_version" ]; then
   exit 1
 fi
 
+# Create a backup branch with the current date and version
+current_date=$(date +"%Y%m%d-%H%M%S")
+backup_branch_name="backup-v$current_version-$current_date"
+
+# Create a backup branch
+echo "Creating backup branch: $backup_branch_name"
+current_branch=$(git branch --show-current)
+git branch $backup_branch_name
+
 # Increment the version number
 major=$(echo $current_version | cut -d. -f1)
 minor=$(echo $current_version | cut -d. -f2)
@@ -37,4 +46,7 @@ git add .
 git commit -m "$commit_message (v$new_version)"
 git push
 
-echo "Committed and pushed with version $new_version"
+# Output information about the backup and the commit
+echo "Backup branch created: $backup_branch_name"
+echo "To revert to this backup, use: git checkout $backup_branch_name"
+echo "Committed and pushed with version $new_version to branch $current_branch"

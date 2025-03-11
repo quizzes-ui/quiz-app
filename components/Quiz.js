@@ -96,7 +96,6 @@ function Question({ question, onAnswerSubmit, selectedAnswer, showJustification,
 function Header({ 
   title,
   onRestartQuiz,
-  onManageQuizzes,
   onOnlineLibrary,
   correctAnswers,
   initialQuestionCount,
@@ -114,7 +113,6 @@ function Header({
       </div>
       <MenuDropdown 
         onRestartQuiz={onRestartQuiz}
-        onManageQuizzes={onManageQuizzes}
         onOnlineLibrary={onOnlineLibrary}
       />
     </div>
@@ -404,7 +402,6 @@ export default function Quiz() {
       <Header 
         title={quizData?.title || "Quiz App"}
         onRestartQuiz={handleRestart}
-        onManageQuizzes={() => setShowManageQuizzes(true)}
         onOnlineLibrary={() => setShowOnlineLibrary(true)}
         correctAnswers={correctAnswers}
         initialQuestionCount={initialQuestionCount}
