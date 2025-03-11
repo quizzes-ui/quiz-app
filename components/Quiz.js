@@ -1,11 +1,4 @@
-  const handleOpenFileInput = (type) => {
-    // type can be 'local' or 'db'
-    const inputId = type === 'db' ? 'quiz-file-input-db' : 'quiz-file-input';
-    const input = document.getElementById(inputId);
-    if (input) {
-      input.click();
-    }
-  };// components/Quiz.js
+// components/Quiz.js
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import ManageQuizzes from './ManageQuizzes';
@@ -103,7 +96,6 @@ function Header({
   title,
   onRestartQuiz,
   onManageQuizzes,
-  onLibraryDB,
   correctAnswers,
   initialQuestionCount,
   isQuizInProgress
@@ -121,7 +113,6 @@ function Header({
       <MenuDropdown 
         onRestartQuiz={onRestartQuiz}
         onManageQuizzes={onManageQuizzes}
-        onLibraryDB={onLibraryDB}
       />
     </div>
   );
@@ -159,7 +150,7 @@ function QuizComplete({ correctAnswers, initialQuestionCount, onRestartQuiz, onM
   );
 }
 
-export default function Quiz({ initialQuizData = null, onManageQuizzes, onLibraryDB, dataSource = 'local' }) {
+export default function Quiz() {
   const CORRECT_ANSWER_DELAY = 1000;
   const LOCAL_STORAGE_KEY = 'quizData';
 
@@ -177,13 +168,6 @@ export default function Quiz({ initialQuizData = null, onManageQuizzes, onLibrar
   const [initialQuestionCount, setInitialQuestionCount] = useState(0);
   const [timeStarted, setTimeStarted] = useState(null);
   const [timeCompleted, setTimeCompleted] = useState(null);
-
-  // Effect to handle initialQuizData when provided
-  useEffect(() => {
-    if (initialQuizData) {
-      setQuizData(initialQuizData);
-    }
-  }, [initialQuizData]);
 
   // Generate a unique key for questions that don't have an ID
   const getQuestionKey = useCallback((question, index) => {
@@ -204,38 +188,19 @@ export default function Quiz({ initialQuizData = null, onManageQuizzes, onLibrar
   // Set active quiz data when quizzes change
   useEffect(() => {
     if (!quizzes || quizzes.length === 0) {
-      return; // Don't clear quizData if we have initialQuizData
+      setQuizData(null);
+      return;
     }
     
-    const activeQuizzes = quizzes.filter(quiz => quiz?.isActive);
-    
-    if (activeQuizzes.length === 0) {
-      return; // Don't clear quizData if we have initialQuizData
-    }
-    
-    if (activeQuizzes.length === 1) {
-      // Single quiz activated
-      const activeQuiz = activeQuizzes[0];
-      if (activeQuiz && activeQuiz.data) {
-        const quizWithId = {
-          ...activeQuiz.data,
-          id: activeQuiz.id
-        };
-        setQuizData(quizWithId);
-      }
+    const activeQuiz = quizzes.find(quiz => quiz?.isActive);
+    if (activeQuiz && activeQuiz.data) {
+      const quizWithId = {
+        ...activeQuiz.data,
+        id: activeQuiz.id
+      };
+      setQuizData(quizWithId);
     } else {
-      // Multiple quizzes activated
-      const combinedQuestions = [];
-      activeQuizzes.forEach(quiz => {
-        if (quiz.data && quiz.data.questions && Array.isArray(quiz.data.questions)) {
-          combinedQuestions.push(...quiz.data.questions);
-        }
-      });
-      
-      setQuizData({
-        title: "Combo Quiz",
-        questions: combinedQuestions
-      });
+      setQuizData(null);
     }
   }, [quizzes]);
 
@@ -435,36 +400,30 @@ export default function Quiz({ initialQuizData = null, onManageQuizzes, onLibrar
       <Header 
         title={quizData?.title || "Quiz App"}
         onRestartQuiz={handleRestart}
-        onManageQuizzes={onManageQuizzes}
-        onLibraryDB={onLibraryDB}
+        onManageQuizzes={() => setShowManageQuizzes(true)}
         correctAnswers={correctAnswers}
         initialQuestionCount={initialQuestionCount}
         isQuizInProgress={isQuizInProgress}
       />
+      
+      {showManageQuizzes && (
+        <ManageQuizzes
+          onClose={() => setShowManageQuizzes(false)}
+          onQuizActivated={handleQuizActivated}
+          quizzes={quizzes || []}
+          setQuizzes={setQuizzes}
+        />
+      )}
+      
       {!quizData ? (
         <div className="empty-state">
-          <p>No questions loaded. Please choose a library to upload questions.</p>
-          <div className="empty-state-buttons">
-            <button 
-              onClick={onManageQuizzes}
-              className="quiz-button"
-              title="Uses browser's local storage - works offline"
-            >
-              Local Library
-            </button>
-            <button 
-              onClick={onLibraryDB}
-              className="quiz-button secondary"
-              title="Uses online database - works across devices"
-            >
-              Online Library
-            </button>
-          </div>
-          <div className="source-note">
-            {dataSource === 'local' ? 
-              "Using local storage - quizzes are saved in your browser" : 
-              "Using online database - quizzes are saved in the cloud"}
-          </div>
+          <p>No questions loaded. Please upload a question file to start.</p>
+          <button 
+            onClick={() => setShowManageQuizzes(true)}
+            className="quiz-button"
+          >
+            Upload Questions
+          </button>
         </div>
       ) : !randomizedQuestions || randomizedQuestions.length === 0 ? (
         <div className="loading-container">
@@ -476,7 +435,7 @@ export default function Quiz({ initialQuizData = null, onManageQuizzes, onLibrar
           correctAnswers={correctAnswers}
           initialQuestionCount={initialQuestionCount}
           onRestartQuiz={handleRestart}
-          onManageQuizzes={onManageQuizzes}
+          onManageQuizzes={() => setShowManageQuizzes(true)}
         />
       ) : (
         <>
