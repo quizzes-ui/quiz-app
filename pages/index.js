@@ -4,37 +4,58 @@ import ManageQuizzes from '../components/ManageQuizzes';
 import LibraryDB from '../components/LibraryDB';
 
 const Home = () => {
-  const [showManageQuizzes, setShowManageQuizzes] = useState(false);
-  const [showLibraryDB, setShowLibraryDB] = useState(false);
-  const [quizData, setQuizData] = useState(null);
+  // State for showing different library windows
+  const [showLocalLibrary, setShowLocalLibrary] = useState(false);
+  const [showOnlineLibrary, setShowOnlineLibrary] = useState(false);
   
-  const handleQuizActivated = (data) => {
+  // State for active quiz data
+  const [quizData, setQuizData] = useState(null);
+  const [dataSource, setDataSource] = useState('local'); // Track data source: 'local' or 'online'
+  
+  // Handle quiz activation from either source
+  const handleLocalQuizActivated = (data) => {
     setQuizData(data);
+    setDataSource('local');
+  };
+  
+  const handleOnlineQuizActivated = (data) => {
+    setQuizData(data);
+    setDataSource('online');
   };
   
   return (
     <div>
+      {/* Main Quiz component */}
       <Quiz 
         initialQuizData={quizData} 
-        onManageQuizzes={() => setShowManageQuizzes(true)}
-        onLibraryDB={() => setShowLibraryDB(true)}
+        onManageQuizzes={() => {
+          setShowLocalLibrary(true);
+          setShowOnlineLibrary(false);
+        }}
+        onLibraryDB={() => {
+          setShowOnlineLibrary(true);
+          setShowLocalLibrary(false);
+        }}
+        dataSource={dataSource}
       />
       
-      {showManageQuizzes && (
+      {/* Local Library (original working version) */}
+      {showLocalLibrary && (
         <ManageQuizzes 
-          onClose={() => setShowManageQuizzes(false)}
-          onQuizActivated={handleQuizActivated}
+          onClose={() => setShowLocalLibrary(false)}
+          onQuizActivated={handleLocalQuizActivated}
         />
       )}
       
-      {showLibraryDB && (
+      {/* Online Library (Supabase version) */}
+      {showOnlineLibrary && (
         <LibraryDB 
-          onClose={() => setShowLibraryDB(false)}
-          onQuizActivated={handleQuizActivated}
+          onClose={() => setShowOnlineLibrary(false)}
+          onQuizActivated={handleOnlineQuizActivated}
         />
       )}
       
-      <div className="version-tag">Version 3.9</div>
+      <div className="version-tag">Version 3.10</div>
     </div>
   );
 };

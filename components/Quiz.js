@@ -159,7 +159,7 @@ function QuizComplete({ correctAnswers, initialQuestionCount, onRestartQuiz, onM
   );
 }
 
-export default function Quiz({ initialQuizData = null, onManageQuizzes, onLibraryDB }) {
+export default function Quiz({ initialQuizData = null, onManageQuizzes, onLibraryDB, dataSource = 'local' }) {
   const CORRECT_ANSWER_DELAY = 1000;
   const LOCAL_STORAGE_KEY = 'quizData';
 
@@ -443,20 +443,27 @@ export default function Quiz({ initialQuizData = null, onManageQuizzes, onLibrar
       />
       {!quizData ? (
         <div className="empty-state">
-          <p>No questions loaded. Please upload a question file to start.</p>
+          <p>No questions loaded. Please choose a library to upload questions.</p>
           <div className="empty-state-buttons">
             <button 
               onClick={onManageQuizzes}
               className="quiz-button"
+              title="Uses browser's local storage - works offline"
             >
               Local Library
             </button>
             <button 
               onClick={onLibraryDB}
               className="quiz-button secondary"
+              title="Uses online database - works across devices"
             >
               Online Library
             </button>
+          </div>
+          <div className="source-note">
+            {dataSource === 'local' ? 
+              "Using local storage - quizzes are saved in your browser" : 
+              "Using online database - quizzes are saved in the cloud"}
           </div>
         </div>
       ) : !randomizedQuestions || randomizedQuestions.length === 0 ? (
