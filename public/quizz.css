@@ -611,9 +611,9 @@ body {
   border-bottom: 1px solid #e5e7eb;
 }
 
-/* New style for truncating long quiz titles */
+/* Modified styling for the quiz title to use more space */
 .quiz-title-cell {
-  max-width: 200px;
+  width: 70%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -680,31 +680,21 @@ body {
   height: 28px;
 }
 
-.questions-count-header {
-  text-align: center;
-  width: 100px;
+/* Left-aligned question count */
+.questions-count-header-left {
+  text-align: left;
+  width: 80px;
 }
 
-.questions-count-cell {
-  text-align: center;
+.questions-count-cell-left {
+  text-align: left;
   font-variant-numeric: tabular-nums;
 }
 
-/* Date added column */
-.date-added-header {
-  width: 120px;
-  text-align: center;
-}
 
-.date-added-cell {
-  text-align: center;
-  font-size: 0.9rem;
-  color: #666;
-}
 
 .actions-header {
-  text-align: center;
-  width: 240px;
+  width: 120px;
 }
 
 .status-badge {

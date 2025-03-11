@@ -272,17 +272,15 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
               <thead>
                 <tr>
                   <th>Quiz Title</th>
-                  <th className="questions-count-header">Questions</th>
-                  <th className="date-added-header">Date Added</th>
-                  <th className="actions-header">Active | Actions</th>
+                  <th className="questions-count-header-left">Questions</th>
+                  <th className="actions-header"></th>
                 </tr>
               </thead>
               <tbody>
                 {quizzes.map(quiz => quiz && (
                   <tr key={quiz.id} className={quiz.isActive ? 'active-row' : ''}>
                     <td className="quiz-title-cell">{quiz.title}</td>
-                    <td className="questions-count-cell">{quiz.data?.questions?.length || 0}</td>
-                    <td className="date-added-cell">{quiz.dateAdded ? formatDate(quiz.dateAdded) : 'N/A'}</td>
+                    <td className="questions-count-cell-left">{quiz.data?.questions?.length || 0}</td>
                     <td className="actions-cell">
                       <div className="action-buttons">
                         <input 
