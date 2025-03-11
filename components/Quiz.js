@@ -192,15 +192,37 @@ export default function Quiz() {
       return;
     }
     
-    const activeQuiz = quizzes.find(quiz => quiz?.isActive);
-    if (activeQuiz && activeQuiz.data) {
-      const quizWithId = {
-        ...activeQuiz.data,
-        id: activeQuiz.id
-      };
-      setQuizData(quizWithId);
-    } else {
+    const activeQuizzes = quizzes.filter(quiz => quiz?.isActive);
+    
+    if (activeQuizzes.length === 0) {
       setQuizData(null);
+      return;
+    }
+    
+    if (activeQuizzes.length === 1) {
+      // Single quiz activated
+      const activeQuiz = activeQuizzes[0];
+      if (activeQuiz && activeQuiz.data) {
+        const quizWithId = {
+          ...activeQuiz.data,
+          id: activeQuiz.id
+        };
+        setQuizData(quizWithId);
+      }
+    } else {
+      // Multiple quizzes activated - this should be handled by ManageQuizzes
+      // but we'll add a safeguard here as well
+      const combinedQuestions = [];
+      activeQuizzes.forEach(quiz => {
+        if (quiz.data && quiz.data.questions && Array.isArray(quiz.data.questions)) {
+          combinedQuestions.push(...quiz.data.questions);
+        }
+      });
+      
+      setQuizData({
+        title: "Combo Quiz",
+        questions: combinedQuestions
+      });
     }
   }, [quizzes]);
 

@@ -629,51 +629,14 @@ body {
   gap: 0.5rem;
 }
 
-.activate-button,
-.order-button {
-  padding: 0.25rem 0.5rem;
-  border: none;
-  border-radius: 4px;
+.quiz-active-checkbox {
+  width: 18px;
+  height: 18px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
-  font-size: 0.875rem;
-  min-width: 70px;
-  text-align: center;
-  font-weight: 500;
-  color: white;
+  accent-color: #4CAF50;
 }
 
-.activate-button.active {
-  background-color: #4CAF50;
-}
-
-.activate-button.active:hover {
-  background-color: #45a049;
-}
-
-.activate-button.inactive {
-  background-color: #ef4444;
-}
-
-.activate-button.inactive:hover {
-  background-color: #dc2626;
-}
-
-.order-button.random {
-  background-color: #8b5cf6;
-}
-
-.order-button.random:hover {
-  background-color: #7c3aed;
-}
-
-.order-button.sequential {
-  background-color: #3b82f6;
-}
-
-.order-button.sequential:hover {
-  background-color: #2563eb;
-}
+/* Order button styles removed */
 
 .delete-button-icon, .info-button-icon {
   background: none;

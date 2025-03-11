@@ -91,13 +91,41 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
       // Second click - confirm deletion
       setQuizzes(prevQuizzes => {
         const updatedQuizzes = (prevQuizzes || []).filter(quiz => quiz?.id !== quizId);
-        const activeQuizWasDeleted = quizzes.find(q => q?.id === quizId)?.isActive;
+        const deletedQuiz = quizzes.find(q => q?.id === quizId);
+        const wasActive = deletedQuiz?.isActive;
         
-        if (activeQuizWasDeleted && updatedQuizzes.length > 0) {
-          updatedQuizzes[0].isActive = true;
-          onQuizActivated(updatedQuizzes[0].data);
-        } else if (updatedQuizzes.length === 0) {
+        // If no quizzes remain, deactivate all
+        if (updatedQuizzes.length === 0) {
           onQuizActivated(null);
+          return updatedQuizzes;
+        }
+        
+        // If the deleted quiz was active, we need to update the active quiz
+        if (wasActive) {
+          // Find remaining active quizzes
+          const activeQuizzes = updatedQuizzes.filter(quiz => quiz.isActive);
+          
+          // If no active quizzes remain, activate the first one
+          if (activeQuizzes.length === 0 && updatedQuizzes.length > 0) {
+            updatedQuizzes[0].isActive = true;
+            onQuizActivated(updatedQuizzes[0].data);
+          } else if (activeQuizzes.length === 1) {
+            // Only one active quiz remains, use it
+            onQuizActivated(activeQuizzes[0].data);
+          } else if (activeQuizzes.length > 1) {
+            // Multiple active quizzes, combine them
+            const combinedQuestions = [];
+            activeQuizzes.forEach(quiz => {
+              if (quiz.data && quiz.data.questions) {
+                combinedQuestions.push(...quiz.data.questions);
+              }
+            });
+            
+            onQuizActivated({
+              title: "Combo Quiz",
+              questions: combinedQuestions
+            });
+          }
         }
         
         return updatedQuizzes;
@@ -114,32 +142,50 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
     }
   };
 
-  const handleDeactivate = () => {
-    setQuizzes(prevQuizzes => 
-      (prevQuizzes || []).map(quiz => 
-        quiz ? {
-          ...quiz,
-          isActive: false
-        } : null
-      ).filter(Boolean)
-    );
-    onQuizActivated(null);
-  };
-
-  const handleActivate = (quizId) => {
-    setQuizzes(prevQuizzes => 
-      (prevQuizzes || []).map(quiz => 
-        quiz ? {
-          ...quiz,
-          isActive: quiz.id === quizId
-        } : null
-      ).filter(Boolean)
-    );
-    
-    const activatedQuiz = quizzes.find(quiz => quiz?.id === quizId);
-    if (activatedQuiz?.data) {
-      onQuizActivated(activatedQuiz.data);
-    }
+  const handleToggleActive = (quizId) => {
+    setQuizzes(prevQuizzes => {
+      const updatedQuizzes = (prevQuizzes || []).map(quiz => {
+        if (quiz && quiz.id === quizId) {
+          return {
+            ...quiz,
+            isActive: !quiz.isActive
+          };
+        }
+        return quiz;
+      }).filter(Boolean);
+      
+      // Check if any quiz is active
+      const activeQuizzes = updatedQuizzes.filter(quiz => quiz.isActive);
+      
+      // If no active quizzes, deactivate all
+      if (activeQuizzes.length === 0) {
+        onQuizActivated(null);
+        return updatedQuizzes;
+      }
+      
+      // If only one quiz is active, use its data directly
+      if (activeQuizzes.length === 1) {
+        onQuizActivated(activeQuizzes[0].data);
+        return updatedQuizzes;
+      }
+      
+      // If multiple quizzes are active, combine their questions
+      const combinedQuestions = [];
+      activeQuizzes.forEach(quiz => {
+        if (quiz.data && quiz.data.questions && Array.isArray(quiz.data.questions)) {
+          combinedQuestions.push(...quiz.data.questions);
+        }
+      });
+      
+      // Create a combined quiz with all questions
+      const combinedQuiz = {
+        title: "Combo Quiz",
+        questions: combinedQuestions
+      };
+      
+      onQuizActivated(combinedQuiz);
+      return updatedQuizzes;
+    });
   };
   
   const viewQuizDetails = (quiz) => {
@@ -191,7 +237,18 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
               <UploadIcon />
               <span>Upload New Questions</span>
             </label>
-            <button onClick={onClose} className="upload-button upload-green">
+            <button 
+              onClick={() => {
+                // Check if any quizzes are active before closing
+                const activeQuizzes = quizzes.filter(quiz => quiz?.isActive);
+                if (activeQuizzes.length === 0 && quizzes.length > 0) {
+                  // Activate the first quiz if none are active
+                  handleToggleActive(quizzes[0].id);
+                }
+                onClose();
+              }} 
+              className="upload-button upload-green"
+            >
               Start Quiz
             </button>
           </div>
@@ -207,7 +264,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
                   <th>Quiz Title</th>
                   <th className="questions-count-header">Questions</th>
                   <th className="date-added-header">Date Added</th>
-                  <th className="actions-header">Actions</th>
+                  <th className="actions-header">Active | Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -218,12 +275,13 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
                     <td className="date-added-cell">{quiz.dateAdded ? formatDate(quiz.dateAdded) : 'N/A'}</td>
                     <td className="actions-cell">
                       <div className="action-buttons">
-                        <button 
-                          onClick={() => quiz.isActive ? handleDeactivate() : handleActivate(quiz.id)}
-                          className={`activate-button ${quiz.isActive ? 'active' : 'inactive'}`}
-                        >
-                          {quiz.isActive ? 'Active' : 'Inactive'}
-                        </button>
+                        <input 
+                          type="checkbox" 
+                          id={`quiz-active-${quiz.id}`}
+                          checked={quiz.isActive || false}
+                          onChange={() => handleToggleActive(quiz.id)}
+                          className="quiz-active-checkbox"
+                        />
                         <button
                           onClick={() => viewQuizDetails(quiz)}
                           className="info-button-icon"
@@ -261,7 +319,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
               <div className="quiz-details-summary">
                 <p><strong>Total Questions:</strong> {selectedQuiz.data?.questions?.length || 0}</p>
                 <p><strong>Date Added:</strong> {selectedQuiz.dateAdded ? formatDate(selectedQuiz.dateAdded) : 'N/A'}</p>
-                <p><strong>Quiz Status:</strong> {selectedQuiz.isActive ? 'Active' : 'Inactive'}</p>
+                <p><strong>Active:</strong> <input type="checkbox" checked={selectedQuiz.isActive || false} readOnly className="quiz-active-checkbox" /></p>
               </div>
               <div className="quiz-questions-preview">
                 <h4>Questions:</h4>
@@ -283,9 +341,15 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
               <button 
                 onClick={() => {
                   closeQuizDetails();
-                  if (!selectedQuiz.isActive) {
-                    handleActivate(selectedQuiz.id);
-                  }
+                  // Set only this quiz to active
+                  setQuizzes(prevQuizzes => {
+                    const updatedQuizzes = (prevQuizzes || []).map(quiz => 
+                      quiz ? { ...quiz, isActive: quiz.id === selectedQuiz.id } : null
+                    ).filter(Boolean);
+                    return updatedQuizzes;
+                  });
+                  // Activate this quiz
+                  onQuizActivated(selectedQuiz.data);
                   onClose();
                 }} 
                 className="quiz-button"
