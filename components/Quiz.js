@@ -44,7 +44,10 @@ function Question({ question, onAnswerSubmit, selectedAnswer, showJustification,
         <div className="progress-bar-container">
           <div 
             className="progress-bar-fill" 
-            style={{ width: `${((Math.min(currentQuestionIndex + 1, initialQuestionCount)) / initialQuestionCount) * 100}%` }}
+            style={{ width: isInRepeatPhase 
+              ? `${((currentQuestionIndex + 1) / (questionsToRepeat?.length || 1)) * 100}%`
+              : `${((Math.min(currentQuestionIndex + 1, initialQuestionCount)) / initialQuestionCount) * 100}%` 
+            }}
           />
         </div>
       </div>
@@ -440,7 +443,7 @@ export default function Quiz() {
               onAnswerSubmit={handleAnswerSubmit}
               selectedAnswer={selectedAnswer}
               showJustification={showJustification}
-              currentQuestionIndex={isInRepeatPhase ? initialQuestionCount + currentQuestionIndex : currentQuestionIndex}
+              currentQuestionIndex={currentQuestionIndex}
               initialQuestionCount={initialQuestionCount}
               isInRepeatPhase={isInRepeatPhase}
               questionsToRepeat={questionsToRepeat}
