@@ -548,46 +548,48 @@ body {
 
 .upload-buttons-container {
   display: flex;
-  gap: 1rem;
+  justify-content: space-between;
   margin-bottom: 1rem;
-  flex-wrap: wrap;
+  height: 40px; /* Fixed height for container */
 }
 
-.upload-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
+.start-quiz-container {
+  min-width: 250px;
+  height: 40px;
+  display: flex;
+}
+
+.start-quiz-button {
+  background-color: #22c55e;
   color: white;
+  border: none;
   border-radius: 4px;
+  padding: 0.5rem 1rem;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  border: none;
   font-size: 1rem;
+  height: 40px;
 }
 
-.upload-button.upload-orange {
-  background-color: #f97316;
-}
-
-.upload-button.upload-orange:hover {
-  background-color: #ea580c;
-}
-
-.upload-button.upload-green {
-  background-color: #22c55e;
-}
-
-.upload-button.upload-green:hover {
+.start-quiz-button:hover {
   background-color: #16a34a;
 }
 
-.upload-button.upload-blue {
-  background-color: #3b82f6;
+.upload-icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f97316;
+  color: white;
+  border-radius: 4px;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
-.upload-button.upload-blue:hover {
-  background-color: #2563eb;
+.upload-icon-button:hover {
+  background-color: #ea580c;
 }
 
 .quizzes-list table {
@@ -747,6 +749,7 @@ body {
   margin-top: 1.5rem;
   border-top: 1px solid #e5e7eb;
   padding-top: 1.5rem;
+  height: 60px; /* Fixed height for section */
 }
 
 .quizzes-list {

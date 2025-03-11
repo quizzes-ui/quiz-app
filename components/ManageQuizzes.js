@@ -212,12 +212,25 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
       return 'Unknown date';
     }
   };
+  
+  const getTotalQuestionCount = () => {
+    const activeQuizzes = quizzes.filter(quiz => quiz?.isActive);
+    let totalQuestions = 0;
+    
+    activeQuizzes.forEach(quiz => {
+      if (quiz?.data?.questions?.length) {
+        totalQuestions += quiz.data.questions.length;
+      }
+    });
+    
+    return totalQuestions;
+  };
 
   return (
     <div className="manage-quizzes-overlay">
       <div className="manage-quizzes-container">
         <div className="manage-quizzes-header">
-          <h2>Manage Quizzes</h2>
+          <h2>Quizzes Library</h2>
           <button className="close-button" onClick={onClose}>
             &times;
           </button>
@@ -225,6 +238,21 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
 
         <div className="upload-section">
           <div className="upload-buttons-container">
+            <div className="start-quiz-container">
+              {getTotalQuestionCount() > 0 && (
+                <button 
+                  onClick={() => {
+                    onClose();
+                  }} 
+                  className="start-quiz-button"
+                >
+                  Start {getTotalQuestionCount()} questions quiz
+                </button>
+              )}
+            </div>
+            <label htmlFor="quiz-file-input" className="upload-icon-button">
+              <UploadIcon />
+            </label>
             <input
               type="file"
               accept=".json"
@@ -233,24 +261,6 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
               className="file-input"
               ref={fileInputRef}
             />
-            <label htmlFor="quiz-file-input" className="upload-button upload-orange">
-              <UploadIcon />
-              <span>Upload New Questions</span>
-            </label>
-            <button 
-              onClick={() => {
-                // Check if any quizzes are active before closing
-                const activeQuizzes = quizzes.filter(quiz => quiz?.isActive);
-                if (activeQuizzes.length === 0 && quizzes.length > 0) {
-                  // Activate the first quiz if none are active
-                  handleToggleActive(quizzes[0].id);
-                }
-                onClose();
-              }} 
-              className="upload-button upload-green"
-            >
-              Start Quiz
-            </button>
           </div>
         </div>
 
@@ -352,9 +362,9 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
                   onQuizActivated(selectedQuiz.data);
                   onClose();
                 }} 
-                className="quiz-button"
+                className="start-quiz-button"
               >
-                Start This Quiz
+                Start {selectedQuiz.data?.questions?.length || 0} questions quiz
               </button>
             </div>
           </div>
