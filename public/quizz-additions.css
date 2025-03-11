@@ -1,0 +1,24 @@
+/* New styles for LibraryDB component */
+
+/* Empty state styles for multiple buttons */
+.empty-state-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+/* Menu button styling */
+.library-db-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.manage-quizzes-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Add these styles to your CSS file */

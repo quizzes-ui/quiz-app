@@ -96,6 +96,7 @@ function Header({
   title,
   onRestartQuiz,
   onManageQuizzes,
+  onLibraryDB,
   correctAnswers,
   initialQuestionCount,
   isQuizInProgress
@@ -113,6 +114,7 @@ function Header({
       <MenuDropdown 
         onRestartQuiz={onRestartQuiz}
         onManageQuizzes={onManageQuizzes}
+        onLibraryDB={onLibraryDB}
       />
     </div>
   );
@@ -150,7 +152,7 @@ function QuizComplete({ correctAnswers, initialQuestionCount, onRestartQuiz, onM
   );
 }
 
-export default function Quiz() {
+export default function Quiz({ initialQuizData = null, onManageQuizzes, onLibraryDB }) {
   const CORRECT_ANSWER_DELAY = 1000;
   const LOCAL_STORAGE_KEY = 'quizData';
 
@@ -168,6 +170,13 @@ export default function Quiz() {
   const [initialQuestionCount, setInitialQuestionCount] = useState(0);
   const [timeStarted, setTimeStarted] = useState(null);
   const [timeCompleted, setTimeCompleted] = useState(null);
+
+  // Effect to handle initialQuizData when provided
+  useEffect(() => {
+    if (initialQuizData) {
+      setQuizData(initialQuizData);
+    }
+  }, [initialQuizData]);
 
   // Generate a unique key for questions that don't have an ID
   const getQuestionKey = useCallback((question, index) => {
@@ -188,15 +197,13 @@ export default function Quiz() {
   // Set active quiz data when quizzes change
   useEffect(() => {
     if (!quizzes || quizzes.length === 0) {
-      setQuizData(null);
-      return;
+      return; // Don't clear quizData if we have initialQuizData
     }
     
     const activeQuizzes = quizzes.filter(quiz => quiz?.isActive);
     
     if (activeQuizzes.length === 0) {
-      setQuizData(null);
-      return;
+      return; // Don't clear quizData if we have initialQuizData
     }
     
     if (activeQuizzes.length === 1) {
@@ -210,8 +217,7 @@ export default function Quiz() {
         setQuizData(quizWithId);
       }
     } else {
-      // Multiple quizzes activated - this should be handled by ManageQuizzes
-      // but we'll add a safeguard here as well
+      // Multiple quizzes activated
       const combinedQuestions = [];
       activeQuizzes.forEach(quiz => {
         if (quiz.data && quiz.data.questions && Array.isArray(quiz.data.questions)) {
@@ -422,28 +428,29 @@ export default function Quiz() {
       <Header 
         title={quizData?.title || "Quiz App"}
         onRestartQuiz={handleRestart}
-        onManageQuizzes={() => setShowManageQuizzes(true)}
+        onManageQuizzes={onManageQuizzes}
+        onLibraryDB={onLibraryDB}
         correctAnswers={correctAnswers}
         initialQuestionCount={initialQuestionCount}
         isQuizInProgress={isQuizInProgress}
       />
-      {showManageQuizzes && (
-        <ManageQuizzes
-          onClose={() => setShowManageQuizzes(false)}
-          onQuizActivated={handleQuizActivated}
-          quizzes={quizzes || []}
-          setQuizzes={setQuizzes}
-        />
-      )}
       {!quizData ? (
         <div className="empty-state">
           <p>No questions loaded. Please upload a question file to start.</p>
-          <button 
-            onClick={() => setShowManageQuizzes(true)}
-            className="quiz-button"
-          >
-            Upload Questions
-          </button>
+          <div className="empty-state-buttons">
+            <button 
+              onClick={onManageQuizzes}
+              className="quiz-button"
+            >
+              Local Library
+            </button>
+            <button 
+              onClick={onLibraryDB}
+              className="quiz-button secondary"
+            >
+              Online Library
+            </button>
+          </div>
         </div>
       ) : !randomizedQuestions || randomizedQuestions.length === 0 ? (
         <div className="loading-container">
@@ -455,7 +462,7 @@ export default function Quiz() {
           correctAnswers={correctAnswers}
           initialQuestionCount={initialQuestionCount}
           onRestartQuiz={handleRestart}
-          onManageQuizzes={() => setShowManageQuizzes(true)}
+          onManageQuizzes={onManageQuizzes}
         />
       ) : (
         <>
@@ -483,8 +490,6 @@ export default function Quiz() {
               }
             </button>
           )}
-          
-
         </>
       )}
     </div>
