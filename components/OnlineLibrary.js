@@ -11,6 +11,7 @@ const OnlineLibrary = ({ onClose, onQuizActivated }) => {
   const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [showQuizDetails, setShowQuizDetails] = useState(false);
   const [quizToDelete, setQuizToDelete] = useState(null);
+  const [toggleLoadingId, setToggleLoadingId] = useState(null);
   const fileInputRef = useRef(null);
 
   // Fetch quizzes from Supabase when component mounts
@@ -179,25 +180,43 @@ const OnlineLibrary = ({ onClose, onQuizActivated }) => {
 
   const handleToggleActive = async (quizId) => {
     try {
+      // Set loading state for this row
+      setToggleLoadingId(quizId);
+      
       // Find the quiz being toggled
       const quizToToggle = quizzes.find(q => q.id === quizId);
       
-      if (!quizToToggle) return;
+      if (!quizToToggle) {
+        setToggleLoadingId(null);
+        return;
+      }
       
       // New active state is the opposite of current
       const newActiveState = !quizToToggle.is_active;
       
-      // Update the quiz's active state
+      // Optimistically update the UI first
+      setQuizzes(prevQuizzes => 
+        prevQuizzes.map(quiz => {
+          if (quiz.id === quizId) {
+            return {
+              ...quiz,
+              is_active: newActiveState
+            };
+          }
+          return quiz;
+        })
+      );
+      
+      // Update the quiz's active state in the database
       await supabase
         .from('quizzes')
         .update({ is_active: newActiveState })
         .eq('id', quizId);
       
-      // Refresh quizzes to get the updated list
-      await fetchQuizzes();
-      
-      // After refreshing, get all active quizzes
-      const activeQuizzes = quizzes.filter(q => q.is_active);
+      // After updating the database, get all active quizzes
+      const activeQuizzes = quizzes.filter(quiz => 
+        quiz.id === quizId ? newActiveState : quiz.is_active
+      );
       
       // If no active quizzes, deactivate all
       if (activeQuizzes.length === 0) {
@@ -226,8 +245,15 @@ const OnlineLibrary = ({ onClose, onQuizActivated }) => {
       };
       
       onQuizActivated(combinedQuiz);
+      
+      // No need to fetchQuizzes again, we've already updated the UI
+      setToggleLoadingId(null);
     } catch (error) {
       console.error('Error toggling quiz active state:', error);
+      
+      // On error, revert back to original data
+      fetchQuizzes();
+      setToggleLoadingId(null);
     }
   };
   
@@ -327,14 +353,20 @@ const OnlineLibrary = ({ onClose, onQuizActivated }) => {
                     <td className="questions-count-cell-left">{quiz.data?.questions?.length || 0}</td>
                     <td className="actions-cell">
                       <div className="action-buttons">
-                        <input 
-                          type="checkbox" 
-                          id={`quiz-active-${quiz.id}`}
-                          checked={quiz.is_active || false}
-                          onChange={() => handleToggleActive(quiz.id)}
-                          className="quiz-active-checkbox"
-                          disabled={isLoading || isUploading || isDeleting}
-                        />
+                        <div className="checkbox-container">
+                          {toggleLoadingId === quiz.id ? (
+                            <div className="spinner-tiny checkbox-spinner"></div>
+                          ) : (
+                            <input 
+                              type="checkbox" 
+                              id={`quiz-active-${quiz.id}`}
+                              checked={quiz.is_active || false}
+                              onChange={() => handleToggleActive(quiz.id)}
+                              className="quiz-active-checkbox"
+                              disabled={isLoading || isUploading || isDeleting || toggleLoadingId !== null}
+                            />
+                          )}
+                        </div>
                         <button
                           onClick={() => viewQuizDetails(quiz)}
                           className="info-button-icon"

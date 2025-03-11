@@ -681,6 +681,19 @@
   gap: 0.5rem;
 }
 
+.checkbox-container {
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkbox-spinner {
+  position: static;
+  margin: 0;
+}
+
 .quiz-active-checkbox {
   width: 18px;
   height: 18px;

@@ -5,7 +5,7 @@ const Home = () => {
   return (
     <div>
       <Quiz />
-      <div className="version-tag">Version 3.16</div>
+      <div className="version-tag">Version 3.18</div>
     </div>
   );
 };
