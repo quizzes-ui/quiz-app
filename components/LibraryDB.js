@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { TrashIcon, UploadIcon, InfoIcon, CheckIcon } from './Icons';
+import { TrashIcon, InfoIcon, CheckIcon } from './Icons';
+import UploadButton from './UploadButton';
 import supabase from '../utils/supabaseClient';
 
 const LibraryDB = ({ onClose, onQuizActivated }) => {
@@ -293,25 +294,11 @@ const LibraryDB = ({ onClose, onQuizActivated }) => {
                 </button>
               )}
             </div>
-            <label 
-              htmlFor="quiz-file-input-db" 
-              className={`upload-icon-button ${isUploading ? 'uploading' : ''}`}
-              title="Upload New Quiz"
-            >
-              {isUploading ? (
-                <div className="spinner-small"></div>
-              ) : (
-                <UploadIcon />
-              )}
-            </label>
-            <input
-              type="file"
-              accept=".json"
-              onChange={handleFileUpload}
+            <UploadButton 
+              onFileSelect={handleFileUpload}
               id="quiz-file-input-db"
-              className="file-input"
-              ref={fileInputRef}
               disabled={isUploading}
+              isUploading={isUploading}
             />
           </div>
         </div>

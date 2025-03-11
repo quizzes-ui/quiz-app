@@ -1,4 +1,11 @@
-// components/Quiz.js
+  const handleOpenFileInput = (type) => {
+    // type can be 'local' or 'db'
+    const inputId = type === 'db' ? 'quiz-file-input-db' : 'quiz-file-input';
+    const input = document.getElementById(inputId);
+    if (input) {
+      input.click();
+    }
+  };// components/Quiz.js
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import ManageQuizzes from './ManageQuizzes';

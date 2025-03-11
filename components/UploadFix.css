@@ -1,0 +1,30 @@
+/* Fix for upload buttons */
+.upload-icon-button {
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  background-color: #f97316;
+  color: white;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.upload-icon-button:hover {
+  background-color: #ea580c;
+}
+
+.file-input {
+  display: none !important;
+}
+
+/* Make sure the file input is properly hidden */
+input[type="file"].file-input {
+  visibility: hidden;
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+}

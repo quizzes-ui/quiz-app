@@ -1,0 +1,36 @@
+/* Styles for the upload button */
+.upload-button-container {
+  position: relative;
+}
+
+.upload-icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f97316;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.upload-icon-button:hover {
+  background-color: #ea580c;
+}
+
+.upload-icon-button.uploading {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.upload-icon-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.file-input {
+  display: none;
+}

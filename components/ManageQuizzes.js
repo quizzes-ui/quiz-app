@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { TrashIcon, UploadIcon, InfoIcon, CheckIcon } from './Icons';
+import { TrashIcon, InfoIcon, CheckIcon } from './Icons';
+import UploadButton from './UploadButton';
 
 const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, orderModes = {}, setOrderModes }) => {
   const [uploadError, setUploadError] = useState('');
@@ -250,16 +251,9 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
                 </button>
               )}
             </div>
-            <label htmlFor="quiz-file-input" className="upload-icon-button">
-              <UploadIcon />
-            </label>
-            <input
-              type="file"
-              accept=".json"
-              onChange={handleFileUpload}
+            <UploadButton 
+              onFileSelect={handleFileUpload}
               id="quiz-file-input"
-              className="file-input"
-              ref={fileInputRef}
             />
           </div>
         </div>
