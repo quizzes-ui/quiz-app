@@ -115,7 +115,7 @@ function Header({
   );
 }
 
-function QuizComplete({ correctAnswers, initialQuestionCount, onRestartQuiz }) {
+function QuizComplete({ correctAnswers, initialQuestionCount, onRestartQuiz, onManageQuizzes }) {
   const normalizedScore = initialQuestionCount > 0 ? (correctAnswers / initialQuestionCount) * 20 : 0;
   let scoreMessage = '';
   
@@ -129,17 +129,6 @@ function QuizComplete({ correctAnswers, initialQuestionCount, onRestartQuiz }) {
     scoreMessage = 'Keep practicing!';
   }
 
-  useEffect(() => {
-    const handleKeyPress = (event) => {
-      if (event.key === 'Enter') {
-        onRestartQuiz();
-      }
-    };
-
-    window.addEventListener('keypress', handleKeyPress);
-    return () => window.removeEventListener('keypress', handleKeyPress);
-  }, [onRestartQuiz]);
-
   return (
     <div className="complete-container">
       <h2 className="quiz-complete-text">Quiz Complete!</h2>
@@ -148,9 +137,9 @@ function QuizComplete({ correctAnswers, initialQuestionCount, onRestartQuiz }) {
       <p className="raw-score">{correctAnswers} out of {initialQuestionCount} correct</p>
       <div className="quiz-complete-buttons">
         <button onClick={onRestartQuiz} className="quiz-button">
-          Try Again
+          Restart Quiz
         </button>
-        <button onClick={() => window.location.reload()} className="quiz-button secondary">
+        <button onClick={onManageQuizzes} className="quiz-button secondary">
           New Quiz
         </button>
       </div>
@@ -441,6 +430,7 @@ export default function Quiz() {
           correctAnswers={correctAnswers}
           initialQuestionCount={initialQuestionCount}
           onRestartQuiz={handleRestart}
+          onManageQuizzes={() => setShowManageQuizzes(true)}
         />
       ) : (
         <>
@@ -469,9 +459,7 @@ export default function Quiz() {
             </button>
           )}
           
-          <div className="quiz-keyboard-shortcuts">
-            <p>Keyboard shortcuts: Press A, B, C to select answers | Press Enter to continue</p>
-          </div>
+
         </>
       )}
     </div>

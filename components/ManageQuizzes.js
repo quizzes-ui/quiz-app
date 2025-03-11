@@ -39,27 +39,15 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
 
     if (!file) return;
 
-    if (file.type !== 'application/json') {
-      setUploadError('Please upload a JSON file');
-      return;
-    }
-
     try {
       // Read file content
       const fileContent = await file.text();
       
-      // Parse JSON without additional validation
+      // Parse JSON without validation
       let parsedData = JSON.parse(fileContent);
       
       // Add IDs to questions if they don't have them
       parsedData = addIdsToQuestions(parsedData);
-      
-      // Check for duplicate quiz titles
-      const existingQuiz = quizzes.find(quiz => quiz?.title === parsedData.title);
-      if (existingQuiz) {
-        setUploadError('A quiz with this title already exists');
-        return;
-      }
 
       // Create and add the new quiz
       const newQuiz = {
@@ -81,20 +69,16 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
         return [newQuiz, ...updatedQuizzes];
       });
 
-      setOrderModes(prev => ({
-        ...prev,
-        [newQuiz.id]: 'random'
-      }));
+      if (setOrderModes) {
+        setOrderModes(prev => ({
+          ...prev,
+          [newQuiz.id]: 'random'
+        }));
+      }
       
       onQuizActivated(parsedData);
-      
-      // Show success message
-      const questionCount = parsedData.questions ? parsedData.questions.length : 0;
-      setUploadSuccess(`Successfully uploaded "${parsedData.title || 'Untitled Quiz'}" with ${questionCount} questions`);
     } catch (error) {
-      // Only log the error but don't show it to the user
       console.error('File processing error:', error);
-      setUploadError('Error reading the file. Please ensure it is a valid JSON file.');
     }
 
     if (event.target) {
@@ -194,8 +178,6 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
         </div>
 
         <div className="upload-section">
-          {uploadError && <p className="upload-error">{uploadError}</p>}
-          {uploadSuccess && <p className="upload-success">{uploadSuccess}</p>}
           <div className="upload-buttons-container">
             <input
               type="file"
