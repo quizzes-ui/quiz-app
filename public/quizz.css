@@ -233,7 +233,8 @@
 
 .upload-icon,
 .restart-icon,
-.info-icon {
+.info-icon,
+.library-icon {
   width: 20px;
   height: 20px;
   flex-shrink: 0;
