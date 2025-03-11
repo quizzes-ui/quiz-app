@@ -34,7 +34,7 @@ const Home = () => {
         />
       )}
       
-      <div className="version-tag">Version 3.7</div>
+      <div className="version-tag">Version 3.9</div>
     </div>
   );
 };
