@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import ManageQuizzes from './ManageQuizzes';
 import MenuDropdown from './MenuDropdown';
-import { CheckIcon, XIcon } from './Icons';
+import { FeedbackCheckIcon, XIcon } from './Icons';
 import useLocalStorage from '../hooks/useLocalStorage';
 import { shuffleArray } from './utils';
 
@@ -79,7 +79,7 @@ function Question({ question, onAnswerSubmit, selectedAnswer, showJustification,
       {showJustification && (
         <div className={`justification ${isCorrect ? 'correct' : 'incorrect'}`}>
           <div className="feedback-with-icon">
-            {isCorrect ? <CheckIcon /> : <XIcon />}
+            {isCorrect ? <FeedbackCheckIcon /> : <XIcon />}
             <p className="answer-feedback">
               {isCorrect ? 'Correct!' : 'Incorrect'}
             </p>

@@ -702,9 +702,17 @@ body {
   color: #2563eb;
 }
 
-.trash-icon, .info-icon {
-  width: 20px;
-  height: 20px;
+.trash-icon, .check-icon, .info-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.delete-button-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
 }
 
 .questions-count-header {

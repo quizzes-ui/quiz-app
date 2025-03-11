@@ -1,5 +1,21 @@
 import React from 'react';
 
+export const FeedbackCheckIcon = () => (
+  <svg 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2.5" 
+    className="feedback-icon correct"
+  >
+    <path 
+      d="M20 6L9 17L4 12"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 export const MenuIcon = () => (
   <svg
     viewBox="0 0 24 24"
@@ -53,8 +69,8 @@ export const CheckIcon = () => (
     viewBox="0 0 24 24" 
     fill="none" 
     stroke="currentColor" 
-    strokeWidth="2.5" 
-    className="feedback-icon correct"
+    strokeWidth="2" 
+    className="check-icon"
   >
     <path 
       d="M20 6L9 17L4 12"

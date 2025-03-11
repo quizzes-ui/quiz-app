@@ -236,7 +236,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
                           className="delete-button-icon"
                           title={quizToDelete === quiz.id ? "Click again to confirm deletion" : "Delete quiz"}
                         >
-                          {quizToDelete === quiz.id ? <CheckIcon /> : <TrashIcon />}
+                          {quizToDelete === quiz.id ? <CheckIcon className="check-icon" /> : <TrashIcon />}
                         </button>
                       </div>
                     </td>

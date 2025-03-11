@@ -1,0 +1,11 @@
+/* Add this at the end of your CSS file */
+.check-icon, .trash-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.delete-button-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
