@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { TrashIcon, UploadIcon, InfoIcon, CheckIcon } from './Icons';
 
-const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, orderModes = {}, setOrderModes }) => {
+const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes }) => {
   const [uploadError, setUploadError] = useState('');
   const [uploadSuccess, setUploadSuccess] = useState('');
   const [selectedQuiz, setSelectedQuiz] = useState(null);
@@ -69,12 +69,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes, ord
         return [newQuiz, ...updatedQuizzes];
       });
 
-      if (setOrderModes) {
-        setOrderModes(prev => ({
-          ...prev,
-          [newQuiz.id]: 'random'
-        }));
-      }
+      // Order modes logic has been removed
       
       onQuizActivated(parsedData);
     } catch (error) {

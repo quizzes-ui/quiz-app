@@ -3,7 +3,7 @@ import { TrashIcon, InfoIcon, CheckIcon } from './Icons';
 import UploadButton from './UploadButton';
 import supabase from '../utils/supabaseClient';
 
-const LibraryDB = ({ onClose, onQuizActivated }) => {
+const OnlineLibrary = ({ onClose, onQuizActivated }) => {
   const [quizzes, setQuizzes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
@@ -124,8 +124,8 @@ const LibraryDB = ({ onClose, onQuizActivated }) => {
       setIsDeleting(true);
       try {
         // Find if the quiz to delete is active
-        const quizToBeDeleted = quizzes.find(q => q.id === quizId);
-        const wasActive = quizToBeDeleted?.is_active;
+        const quizToDeleteItem = quizzes.find(q => q.id === quizId);
+        const wasActive = quizToDeleteItem?.is_active;
         
         // Delete the quiz
         const { error } = await supabase
@@ -140,7 +140,7 @@ const LibraryDB = ({ onClose, onQuizActivated }) => {
         
         // If deleted quiz was active, need to update active status
         if (wasActive) {
-          // Refresh quizzes first to get updated list
+          // Get the updated list after deletion
           await fetchQuizzes();
           const remainingQuizzes = quizzes.filter(q => q.id !== quizId);
           
@@ -296,7 +296,7 @@ const LibraryDB = ({ onClose, onQuizActivated }) => {
             </div>
             <UploadButton 
               onFileSelect={handleFileUpload}
-              id="quiz-file-input-db"
+              id="online-quiz-file-input"
               disabled={isUploading}
               isUploading={isUploading}
             />
@@ -427,4 +427,4 @@ const LibraryDB = ({ onClose, onQuizActivated }) => {
   );
 };
 
-export default LibraryDB;
+export default OnlineLibrary;

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import ManageQuizzes from './ManageQuizzes';
+import OnlineLibrary from './OnlineLibrary';
 import MenuDropdown from './MenuDropdown';
 import { FeedbackCheckIcon, XIcon } from './Icons';
 import useLocalStorage from '../hooks/useLocalStorage';
@@ -96,6 +97,7 @@ function Header({
   title,
   onRestartQuiz,
   onManageQuizzes,
+  onOnlineLibrary,
   correctAnswers,
   initialQuestionCount,
   isQuizInProgress
@@ -113,12 +115,13 @@ function Header({
       <MenuDropdown 
         onRestartQuiz={onRestartQuiz}
         onManageQuizzes={onManageQuizzes}
+        onOnlineLibrary={onOnlineLibrary}
       />
     </div>
   );
 }
 
-function QuizComplete({ correctAnswers, initialQuestionCount, onRestartQuiz, onManageQuizzes }) {
+function QuizComplete({ correctAnswers, initialQuestionCount, onRestartQuiz, onManageQuizzes, onOnlineLibrary }) {
   const normalizedScore = initialQuestionCount > 0 ? (correctAnswers / initialQuestionCount) * 20 : 0;
   let scoreMessage = '';
   
@@ -160,6 +163,7 @@ export default function Quiz() {
   const [isQuizComplete, setIsQuizComplete] = useState(false);
   const [quizData, setQuizData] = useState(null);
   const [showManageQuizzes, setShowManageQuizzes] = useState(false);
+  const [showOnlineLibrary, setShowOnlineLibrary] = useState(false);
   const [randomizedQuestions, setRandomizedQuestions] = useState([]);
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [quizzes, setQuizzes] = useLocalStorage(LOCAL_STORAGE_KEY, []);
@@ -401,6 +405,7 @@ export default function Quiz() {
         title={quizData?.title || "Quiz App"}
         onRestartQuiz={handleRestart}
         onManageQuizzes={() => setShowManageQuizzes(true)}
+        onOnlineLibrary={() => setShowOnlineLibrary(true)}
         correctAnswers={correctAnswers}
         initialQuestionCount={initialQuestionCount}
         isQuizInProgress={isQuizInProgress}
@@ -412,6 +417,13 @@ export default function Quiz() {
           onQuizActivated={handleQuizActivated}
           quizzes={quizzes || []}
           setQuizzes={setQuizzes}
+        />
+      )}
+      
+      {showOnlineLibrary && (
+        <OnlineLibrary
+          onClose={() => setShowOnlineLibrary(false)}
+          onQuizActivated={handleQuizActivated}
         />
       )}
       
@@ -436,6 +448,7 @@ export default function Quiz() {
           initialQuestionCount={initialQuestionCount}
           onRestartQuiz={handleRestart}
           onManageQuizzes={() => setShowManageQuizzes(true)}
+          onOnlineLibrary={() => setShowOnlineLibrary(true)}
         />
       ) : (
         <>

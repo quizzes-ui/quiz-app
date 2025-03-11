@@ -1,3 +1,5 @@
 #!/bin/bash
+chmod +x build.sh
+chmod +x make-build-executable.sh
 chmod +x commit-changes.sh
-echo "commit-changes.sh is now executable."
+echo "All scripts are now executable."

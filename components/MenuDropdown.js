@@ -7,7 +7,8 @@ function MenuDropdown({
   onRestartQuiz,
   uploadError,
   uploadSuccess,
-  onManageQuizzes
+  onManageQuizzes,
+  onOnlineLibrary
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
@@ -47,7 +48,17 @@ function MenuDropdown({
               setIsOpen(false);
             }} className="manage-quizzes-button">
               <UploadIcon />
-              <span>Manage Quizzes</span>
+              <span>Local Library</span>
+            </button>
+          </div>
+
+          <div className="menu-item">
+            <button onClick={() => {
+              onOnlineLibrary();
+              setIsOpen(false);
+            }} className="online-library-button">
+              <UploadIcon />
+              <span>Online Library</span>
             </button>
           </div>
 
