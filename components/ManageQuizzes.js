@@ -8,6 +8,7 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes }) =
   const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [showQuizDetails, setShowQuizDetails] = useState(false);
   const [quizToDelete, setQuizToDelete] = useState(null);
+  const [toggleLoadingId, setToggleLoadingId] = useState(null);
   const fileInputRef = useRef(null);
 
 
@@ -142,6 +143,9 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes }) =
   };
 
   const handleToggleActive = (quizId) => {
+    // Set loading state for this row
+    setToggleLoadingId(quizId);
+    
     setQuizzes(prevQuizzes => {
       const updatedQuizzes = (prevQuizzes || []).map(quiz => {
         if (quiz && quiz.id === quizId) {
@@ -185,6 +189,11 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes }) =
       onQuizActivated(combinedQuiz);
       return updatedQuizzes;
     });
+    
+    // Clear loading state after the state update
+    setTimeout(() => {
+      setToggleLoadingId(null);
+    }, 300); // Short delay to show the spinner
   };
   
   const viewQuizDetails = (quiz) => {
@@ -282,13 +291,20 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes }) =
                     <td className="questions-count-cell-left">{quiz.data?.questions?.length || 0}</td>
                     <td className="actions-cell">
                       <div className="action-buttons">
-                        <input 
-                          type="checkbox" 
-                          id={`quiz-active-${quiz.id}`}
-                          checked={quiz.isActive || false}
-                          onChange={() => handleToggleActive(quiz.id)}
-                          className="quiz-active-checkbox"
-                        />
+                        <div className="checkbox-container">
+                          {toggleLoadingId === quiz.id ? (
+                            <div className="spinner-tiny checkbox-spinner"></div>
+                          ) : (
+                            <input 
+                              type="checkbox" 
+                              id={`quiz-active-${quiz.id}`}
+                              checked={quiz.isActive || false}
+                              onChange={() => handleToggleActive(quiz.id)}
+                              className="quiz-active-checkbox"
+                              disabled={toggleLoadingId !== null}
+                            />
+                          )}
+                        </div>
                         <button
                           onClick={() => viewQuizDetails(quiz)}
                           className="info-button-icon"

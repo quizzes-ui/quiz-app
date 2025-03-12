@@ -199,17 +199,17 @@ const OnlineLibrary = ({ onClose, onQuizActivated }) => {
       const newActiveState = !quizToToggle.is_active;
       
       // Optimistically update the UI first
-      setQuizzes(prevQuizzes => 
-        prevQuizzes.map(quiz => {
-          if (quiz.id === quizId) {
-            return {
-              ...quiz,
-              is_active: newActiveState
-            };
-          }
-          return quiz;
-        })
-      );
+      const updatedQuizzes = quizzes.map(quiz => {
+        if (quiz.id === quizId) {
+          return {
+            ...quiz,
+            is_active: newActiveState
+          };
+        }
+        return quiz;
+      });
+      
+      setQuizzes(updatedQuizzes);
       
       // Update the quiz's active state in the database
       await supabase
@@ -217,20 +217,20 @@ const OnlineLibrary = ({ onClose, onQuizActivated }) => {
         .update({ is_active: newActiveState })
         .eq('id', quizId);
       
-      // After updating the database, get all active quizzes
-      const activeQuizzes = quizzes.filter(quiz => 
-        quiz.id === quizId ? newActiveState : quiz.is_active
-      );
+      // Calculate active quizzes based on the updated state, not the old state
+      const activeQuizzes = updatedQuizzes.filter(quiz => quiz.is_active);
       
       // If no active quizzes, deactivate all
       if (activeQuizzes.length === 0) {
         onQuizActivated(null);
+        setToggleLoadingId(null);
         return;
       }
       
       // If only one quiz is active, use its data directly
       if (activeQuizzes.length === 1) {
         onQuizActivated(activeQuizzes[0].data);
+        setToggleLoadingId(null);
         return;
       }
       
@@ -250,7 +250,7 @@ const OnlineLibrary = ({ onClose, onQuizActivated }) => {
       
       onQuizActivated(combinedQuiz);
       
-      // No need to fetchQuizzes again, we've already updated the UI
+      // Always clear loading state at the end
       setToggleLoadingId(null);
     } catch (error) {
       console.error('Error toggling quiz active state:', error);
