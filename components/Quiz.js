@@ -1,11 +1,9 @@
 // components/Quiz.js
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import ManageQuizzes from './ManageQuizzes';
 import OnlineLibrary from './OnlineLibrary';
 import MenuDropdown from './MenuDropdown';
 import { FeedbackCheckIcon, XIcon } from './Icons';
-import useLocalStorage from '../hooks/useLocalStorage';
 import { shuffleArray } from './utils';
 
 function Question({ question, onAnswerSubmit, selectedAnswer, showJustification, currentQuestionIndex, initialQuestionCount, isInRepeatPhase, questionsToRepeat }) {
@@ -153,28 +151,20 @@ function QuizComplete({ correctAnswers, initialQuestionCount, onRestartQuiz, onM
 
 export default function Quiz() {
   const CORRECT_ANSWER_DELAY = 1000;
-  const LOCAL_STORAGE_KEY = 'quizData';
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState('');
   const [showJustification, setShowJustification] = useState(false);
   const [isQuizComplete, setIsQuizComplete] = useState(false);
   const [quizData, setQuizData] = useState(null);
-  const [showManageQuizzes, setShowManageQuizzes] = useState(false);
   const [showOnlineLibrary, setShowOnlineLibrary] = useState(false);
   const [randomizedQuestions, setRandomizedQuestions] = useState([]);
   const [correctAnswers, setCorrectAnswers] = useState(0);
-  const [quizzes, setQuizzes] = useLocalStorage(LOCAL_STORAGE_KEY, []);
   const [questionsToRepeat, setQuestionsToRepeat] = useState([]);
   const [isInRepeatPhase, setIsInRepeatPhase] = useState(false);
   const [initialQuestionCount, setInitialQuestionCount] = useState(0);
   const [timeStarted, setTimeStarted] = useState(null);
   const [timeCompleted, setTimeCompleted] = useState(null);
-
-  // Generate a unique key for questions that don't have an ID
-  const getQuestionKey = useCallback((question, index) => {
-    return question.id || `q-${index}-${question.texte?.slice(0, 10)?.replace(/\s+/g, '-')}`;
-  }, []);
 
   // Timer for tracking quiz duration
   useEffect(() => {
@@ -186,25 +176,6 @@ export default function Quiz() {
       setTimeCompleted(new Date());
     }
   }, [quizData, randomizedQuestions.length, isQuizComplete, timeStarted, timeCompleted]);
-
-  // Set active quiz data when quizzes change
-  useEffect(() => {
-    if (!quizzes || quizzes.length === 0) {
-      setQuizData(null);
-      return;
-    }
-    
-    const activeQuiz = quizzes.find(quiz => quiz?.isActive);
-    if (activeQuiz && activeQuiz.data) {
-      const quizWithId = {
-        ...activeQuiz.data,
-        id: activeQuiz.id
-      };
-      setQuizData(quizWithId);
-    } else {
-      setQuizData(null);
-    }
-  }, [quizzes]);
 
   // Randomize questions when quiz data changes
   useEffect(() => {
@@ -408,15 +379,6 @@ export default function Quiz() {
         isQuizInProgress={isQuizInProgress}
       />
       
-      {showManageQuizzes && (
-        <ManageQuizzes
-          onClose={() => setShowManageQuizzes(false)}
-          onQuizActivated={handleQuizActivated}
-          quizzes={quizzes || []}
-          setQuizzes={setQuizzes}
-        />
-      )}
-      
       {showOnlineLibrary && (
         <OnlineLibrary
           onClose={() => setShowOnlineLibrary(false)}
@@ -426,12 +388,12 @@ export default function Quiz() {
       
       {!quizData ? (
         <div className="empty-state">
-          <p>No questions loaded. Please upload a question file to start.</p>
+          <p>No questions loaded. Please browse the question library to start.</p>
           <button 
-            onClick={() => setShowManageQuizzes(true)}
+            onClick={() => setShowOnlineLibrary(true)}
             className="quiz-button"
           >
-            Upload Questions
+            Browse Questions
           </button>
         </div>
       ) : !randomizedQuestions || randomizedQuestions.length === 0 ? (
@@ -444,7 +406,7 @@ export default function Quiz() {
           correctAnswers={correctAnswers}
           initialQuestionCount={initialQuestionCount}
           onRestartQuiz={handleRestart}
-          onManageQuizzes={() => setShowManageQuizzes(true)}
+          onManageQuizzes={() => setShowOnlineLibrary(true)}
           onOnlineLibrary={() => setShowOnlineLibrary(true)}
         />
       ) : (

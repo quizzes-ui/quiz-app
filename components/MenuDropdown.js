@@ -2,12 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { MenuIcon, RestartIcon, LibraryIcon } from './Icons';
 
 function MenuDropdown({ 
-  isUsingCustomQuestions, 
-  onResetToDefault, 
   onRestartQuiz,
-  uploadError,
-  uploadSuccess,
-  onManageQuizzes,
   onOnlineLibrary
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -52,16 +47,6 @@ function MenuDropdown({
             </button>
           </div>
 
-          {isUsingCustomQuestions && (
-            <div className="menu-item">
-              <button 
-                className="reset-questions-button"
-                onClick={onResetToDefault}
-              >
-                Reset to Default
-              </button>
-            </div>
-          )}
 
           <div className="menu-item">
             <button 
@@ -98,12 +83,7 @@ function MenuDropdown({
             </div>
           )}
 
-          {(uploadError || uploadSuccess) && (
-            <div className="menu-item menu-messages">
-              {uploadError && <p className="upload-error">{uploadError}</p>}
-              {uploadSuccess && <p className="upload-success">{uploadSuccess}</p>}
-            </div>
-          )}
+
         </div>
       )}
     </div>
