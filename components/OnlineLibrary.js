@@ -15,6 +15,76 @@ const OnlineLibrary = ({ onClose, onQuizActivated }) => {
   const [toggleLoadingId, setToggleLoadingId] = useState(null);
   const fileInputRef = useRef(null);
 
+  const removeQuestion = async (quizId, questionId) => {
+    try {
+      // Find the quiz
+      const quiz = quizzes.find(q => q.id === quizId);
+      if (!quiz) return;
+      
+      // Clone the quiz data and remove the question
+      const updatedQuizData = { ...quiz.data };
+      updatedQuizData.questions = updatedQuizData.questions.filter(q => q.id !== questionId);
+      
+      // Update the quiz in Supabase
+      const { error } = await supabase
+        .from('quizzes')
+        .update({ data: updatedQuizData })
+        .eq('id', quizId);
+        
+      if (error) {
+        console.error('Error updating quiz:', error);
+        return;
+      }
+      
+      // Update local state
+      setQuizzes(prevQuizzes => {
+        return prevQuizzes.map(q => {
+          if (q.id === quizId) {
+            return { ...q, data: updatedQuizData };
+          }
+          return q;
+        });
+      });
+      
+      // If we're viewing this quiz, update the selectedQuiz state
+      if (selectedQuiz && selectedQuiz.id === quizId) {
+        setSelectedQuiz({
+          ...selectedQuiz,
+          data: updatedQuizData
+        });
+      }
+      
+      // If the quiz is active, update the active quiz
+      if (quiz.is_active) {
+        const activeQuizzes = quizzes.filter(q => q.is_active);
+        
+        if (activeQuizzes.length === 1) {
+          // Only this quiz is active, update it
+          onQuizActivated(updatedQuizData);
+        } else if (activeQuizzes.length > 1) {
+          // Multiple quizzes are active, update the combined quiz
+          const combinedQuestions = [];
+          activeQuizzes.forEach(activeQuiz => {
+            if (activeQuiz.id === quizId) {
+              // For the quiz we're modifying, use updated questions
+              combinedQuestions.push(...updatedQuizData.questions);
+            } else {
+              // For other quizzes, include all questions
+              combinedQuestions.push(...activeQuiz.data.questions);
+            }
+          });
+          
+          onQuizActivated({
+            title: "Combo Quiz",
+            questions: combinedQuestions
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error removing question:', error);
+    }
+  };
+
   // Fetch quizzes from Supabase when component mounts
   useEffect(() => {
     fetchQuizzes();
@@ -413,14 +483,23 @@ const OnlineLibrary = ({ onClose, onQuizActivated }) => {
               <div className="quiz-details-summary">
                 <p><strong>Total Questions:</strong> {selectedQuiz.data?.questions?.length || 0}</p>
                 <p><strong>Date Added:</strong> {selectedQuiz.created_at ? formatDate(selectedQuiz.created_at) : 'N/A'}</p>
-                <p><strong>Active:</strong> <input type="checkbox" checked={selectedQuiz.is_active || false} readOnly className="quiz-active-checkbox" /></p>
+                <p><strong>Active:</strong> <span className={selectedQuiz.is_active ? "status-active" : "status-inactive"}>{selectedQuiz.is_active ? "Active" : "Inactive"}</span></p>
               </div>
               <div className="quiz-questions-preview">
                 <h4>Questions:</h4>
                 <div className="questions-preview-list">
                   {selectedQuiz.data?.questions?.map((question, index) => (
-                    <div key={`preview-${index}`} className="question-preview-item">
-                      <p className="question-preview-text"><strong>Q{index + 1}:</strong> {question.texte}</p>
+                      <div key={`preview-${index}`} className="question-preview-item">
+                        <div className="question-preview-header">
+                          <p className="question-preview-text"><strong>Q{index + 1}:</strong> {question.texte}</p>
+                          <button 
+                            onClick={() => removeQuestion(selectedQuiz.id, question.id)}
+                            className="delete-question-button"
+                            title="Remove this question"
+                          >
+                            <TrashIcon />
+                          </button>
+                        </div>
                       <div className="question-preview-answers">
                         <p className={question.correctAnswer === 'A' ? 'correct-answer' : ''}>A: {question.answerA}</p>
                         <p className={question.correctAnswer === 'B' ? 'correct-answer' : ''}>B: {question.answerB}</p>

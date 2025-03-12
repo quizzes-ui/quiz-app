@@ -11,6 +11,71 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes }) =
   const [toggleLoadingId, setToggleLoadingId] = useState(null);
   const fileInputRef = useRef(null);
 
+  const removeQuestion = (quizId, questionId) => {
+    setQuizzes(prevQuizzes => {
+      return prevQuizzes.map(quiz => {
+        if (quiz.id === quizId) {
+          // Create a new quiz object with the question removed
+          const updatedQuestions = quiz.data.questions.filter(question => question.id !== questionId);
+          
+          return {
+            ...quiz,
+            data: {
+              ...quiz.data,
+              questions: updatedQuestions
+            }
+          };
+        }
+        return quiz;
+      });
+    });
+    
+    // If we're currently viewing this quiz, update the selectedQuiz state
+    if (selectedQuiz && selectedQuiz.id === quizId) {
+      const updatedQuestions = selectedQuiz.data.questions.filter(question => question.id !== questionId);
+      setSelectedQuiz({
+        ...selectedQuiz,
+        data: {
+          ...selectedQuiz.data,
+          questions: updatedQuestions
+        }
+      });
+    }
+    
+    // If the quiz is active, update the active quiz
+    const quiz = quizzes.find(q => q.id === quizId);
+    if (quiz && quiz.isActive) {
+      const activeQuizzes = quizzes.filter(q => q.isActive);
+      
+      if (activeQuizzes.length === 1) {
+        // Only this quiz is active, update it
+        const updatedQuestions = quiz.data.questions.filter(q => q.id !== questionId);
+        onQuizActivated({
+          ...quiz.data,
+          questions: updatedQuestions
+        });
+      } else if (activeQuizzes.length > 1) {
+        // Multiple quizzes are active, update the combined quiz
+        const combinedQuestions = [];
+        activeQuizzes.forEach(activeQuiz => {
+          if (activeQuiz.id === quizId) {
+            // For the quiz we're modifying, filter out the removed question
+            const filteredQuestions = activeQuiz.data.questions.filter(q => q.id !== questionId);
+            combinedQuestions.push(...filteredQuestions);
+          } else {
+            // For other quizzes, include all questions
+            combinedQuestions.push(...activeQuiz.data.questions);
+          }
+        });
+        
+        onQuizActivated({
+          title: "Combo Quiz",
+          questions: combinedQuestions
+        });
+      }
+    }
+  };
+
 
 
   const addIdsToQuestions = (data) => {
@@ -342,14 +407,23 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes }) =
               <div className="quiz-details-summary">
                 <p><strong>Total Questions:</strong> {selectedQuiz.data?.questions?.length || 0}</p>
                 <p><strong>Date Added:</strong> {selectedQuiz.dateAdded ? formatDate(selectedQuiz.dateAdded) : 'N/A'}</p>
-                <p><strong>Active:</strong> <input type="checkbox" checked={selectedQuiz.isActive || false} readOnly className="quiz-active-checkbox" /></p>
+                <p><strong>Active:</strong> <span className={selectedQuiz.isActive ? "status-active" : "status-inactive"}>{selectedQuiz.isActive ? "Active" : "Inactive"}</span></p>
               </div>
               <div className="quiz-questions-preview">
                 <h4>Questions:</h4>
                 <div className="questions-preview-list">
                   {selectedQuiz.data?.questions?.map((question, index) => (
-                    <div key={`preview-${index}`} className="question-preview-item">
-                      <p className="question-preview-text"><strong>Q{index + 1}:</strong> {question.texte}</p>
+                      <div key={`preview-${index}`} className="question-preview-item">
+                        <div className="question-preview-header">
+                          <p className="question-preview-text"><strong>Q{index + 1}:</strong> {question.texte}</p>
+                          <button 
+                            onClick={() => removeQuestion(selectedQuiz.id, question.id)}
+                            className="delete-question-button"
+                            title="Remove this question"
+                          >
+                            <TrashIcon />
+                          </button>
+                        </div>
                       <div className="question-preview-answers">
                         <p className={question.correctAnswer === 'A' ? 'correct-answer' : ''}>A: {question.answerA}</p>
                         <p className={question.correctAnswer === 'B' ? 'correct-answer' : ''}>B: {question.answerB}</p>
