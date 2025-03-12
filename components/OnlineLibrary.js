@@ -491,15 +491,14 @@ const OnlineLibrary = ({ onClose, onQuizActivated }) => {
                   {selectedQuiz.data?.questions?.map((question, index) => (
                       <div key={`preview-${index}`} className="question-preview-item">
                         <div className="question-preview-header">
-                          <p className="question-preview-text"><strong>Q{index + 1}:</strong> {question.texte}
-                            <button 
-                              onClick={() => removeQuestion(selectedQuiz.id, question.id)}
-                              className="delete-question-button-inline"
-                              title="Remove this question"
-                            >
-                              <TrashIcon />
-                            </button>
-                          </p>
+                          <p className="question-preview-text"><strong>Q{index + 1}:</strong> {question.texte}</p>
+                          <button 
+                            onClick={() => removeQuestion(selectedQuiz.id, question.id)}
+                            className="delete-question-button-inline"
+                            title="Remove this question"
+                          >
+                            <TrashIcon />
+                          </button>
                         </div>
                       <div className="question-preview-answers">
                         <p className={question.correctAnswer === 'A' ? 'correct-answer' : ''}>A: {question.answerA}</p>
