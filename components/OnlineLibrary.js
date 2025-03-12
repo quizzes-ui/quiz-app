@@ -483,7 +483,7 @@ const OnlineLibrary = ({ onClose, onQuizActivated }) => {
               <div className="quiz-details-summary">
                 <p><strong>Total Questions:</strong> {selectedQuiz.data?.questions?.length || 0}</p>
                 <p><strong>Date Added:</strong> {selectedQuiz.created_at ? formatDate(selectedQuiz.created_at) : 'N/A'}</p>
-                <p><strong>Active:</strong> <span className={selectedQuiz.is_active ? "status-active" : "status-inactive"}>{selectedQuiz.is_active ? "Active" : "Inactive"}</span></p>
+                <p><span className={selectedQuiz.is_active ? "status-active" : "status-inactive"}>{selectedQuiz.is_active ? "Active" : "Inactive"}</span></p>
               </div>
               <div className="quiz-questions-preview">
                 <h4>Questions:</h4>
@@ -491,14 +491,15 @@ const OnlineLibrary = ({ onClose, onQuizActivated }) => {
                   {selectedQuiz.data?.questions?.map((question, index) => (
                       <div key={`preview-${index}`} className="question-preview-item">
                         <div className="question-preview-header">
-                          <p className="question-preview-text"><strong>Q{index + 1}:</strong> {question.texte}</p>
-                          <button 
-                            onClick={() => removeQuestion(selectedQuiz.id, question.id)}
-                            className="delete-question-button"
-                            title="Remove this question"
-                          >
-                            <TrashIcon />
-                          </button>
+                          <p className="question-preview-text"><strong>Q{index + 1}:</strong> {question.texte}
+                            <button 
+                              onClick={() => removeQuestion(selectedQuiz.id, question.id)}
+                              className="delete-question-button-inline"
+                              title="Remove this question"
+                            >
+                              <TrashIcon />
+                            </button>
+                          </p>
                         </div>
                       <div className="question-preview-answers">
                         <p className={question.correctAnswer === 'A' ? 'correct-answer' : ''}>A: {question.answerA}</p>
