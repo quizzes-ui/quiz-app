@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { balanceCorrectAnswers } from '../utils/quizUtils';
 import { TrashIcon, UploadIcon, InfoIcon, CheckIcon } from './Icons';
 
 const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes }) => {
@@ -48,6 +49,9 @@ const ManageQuizzes = ({ onClose, onQuizActivated, quizzes = [], setQuizzes }) =
       
       // Add IDs to questions if they don't have them
       parsedData = addIdsToQuestions(parsedData);
+      
+      // Balance the correct answers distribution
+      parsedData = balanceCorrectAnswers(parsedData);
 
       // Create and add the new quiz
       const newQuiz = {

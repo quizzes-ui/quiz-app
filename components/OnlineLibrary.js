@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { balanceCorrectAnswers } from '../utils/quizUtils';
 import { TrashIcon, InfoIcon, CheckIcon } from './Icons';
 import UploadButton from './UploadButton';
 import supabase from '../utils/supabaseClient';
@@ -75,6 +76,9 @@ const OnlineLibrary = ({ onClose, onQuizActivated }) => {
       
       // Add IDs to questions if they don't have them
       parsedData = addIdsToQuestions(parsedData);
+      
+      // Balance the correct answers distribution
+      parsedData = balanceCorrectAnswers(parsedData);
 
       // Create the new quiz object
       const newQuiz = {
