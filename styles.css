@@ -103,3 +103,16 @@
   width: 16px;
   height: 16px;
 }
+
+/* Quiz answer option hover styles */
+.option-label:hover {
+  background-color: #212529; /* Dark/black background */
+  color: white; /* White text */
+  border-color: #212529;
+  cursor: pointer;
+}
+
+.option-label:hover .option-letter,
+.option-label:hover .option-text {
+  color: white;
+}
