@@ -57,12 +57,16 @@ A flexible, interactive quiz application built with Next.js that supports multip
    ```
 
 3. Set up environment variables:
-   - Create a `.env.local` file in the root directory
-   - Add Supabase credentials if you want to use the online library:
+   - Copy the example environment file: 
+     ```bash
+     cp .env.example .env.local
+     ```
+   - Edit `.env.local` and add your Supabase credentials:
      ```
      NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
      NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
      ```
+   - Note: Environment files (`.env.local`, etc.) contain sensitive information and should never be committed to the repository
 
 4. Run the development server:
    ```bash
@@ -304,7 +308,7 @@ npm run build
 yarn build
 ```
 
-Supabase configuration is already set up in `utils/supabaseClient.js`, but you should set proper environment variables in your deployment platform for security.
+Set proper environment variables in your deployment platform (like Vercel) for security. The application uses environment variables configured in `utils/supabaseClient.js` to access Supabase.
 
 ## Contributing
 
